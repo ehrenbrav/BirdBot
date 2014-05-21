@@ -16,5 +16,14 @@ def validate_and_read_file():
         + " does not appear to be a .wav file"
         exit(1)
 
+    # Read the wav file.
+    sample_frequency, data = wavfile.read(file_path)
+
+    # Print some info about the file.
+    print "Sample Frequency: " + str(sample_frequency)
+    duration = float(data.shape[0]) / float(sample_frequency)
+    print "Duration (s): " + str(round(duration, 3))
+    print "Channels (we only extract the first): " + str(len(data.shape))
+
     # Return sample_frequency, data
-    return wavfile.read(file_path)
+    return sample_frequency, data
