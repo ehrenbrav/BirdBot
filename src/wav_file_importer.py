@@ -2,6 +2,8 @@
 import argparse
 import subprocess
 from scipy.io import wavfile
+from math import sqrt
+from numpy import mean
 
 def validate_and_read_file():
     """Grab the file path."""
@@ -24,6 +26,7 @@ def validate_and_read_file():
     duration = float(data.shape[0]) / float(sample_frequency)
     print "Duration (s): " + str(round(duration, 3))
     print "Channels (we only extract the first): " + str(len(data.shape))
+    print "RMS: " + str(sqrt(mean(data**2)))
 
     # Return sample_frequency, data
     return sample_frequency, data
