@@ -1,22 +1,29 @@
 #!/usr/bin/env python
 """Tests the fft functions of numpy."""
 
-from scipy import fftpack, pi, linspace, sin, random, fft, log10
+import scipy as sp
+from scipy import fftpack, signal
 import pylab
 
-t = linspace(0, 120, 4000)
+t = sp.linspace(0, 30, 2000)
 
 def acc(t):
     
-    return 10*sin(2*pi*2.0*t) + 5*sin(2*pi*8.0*t) + 2*random.random(len(t))
+    return 15*sp.sin(2*sp.pi*2.0*t) + 10*sp.sin(2*sp.pi*8.0*t) + .5*sp.random.random(len(t))
 
 signal = acc(t)
+windowed_signal = acc(t) * sp.signal.hamming(len(t))
 
-FFT = abs(fft(signal))
-frequencies = fftpack.fftfreq(signal.size, t[1] - t[0])
+fft = abs(fftpack.rfft(signal))
+windowed_fft = abs(fftpack.rfft(windowed_signal))
+frequencies = fftpack.rfftfreq(signal.size, t[1] - t[0])
 
-pylab.subplot(211)
+pylab.subplot(4, 1, 1)
 pylab.plot(t, signal)
-pylab.subplot(212)
-pylab.plot(frequencies, 20*log10(FFT), 'x')
+pylab.subplot(4, 1, 2)
+pylab.plot(t, windowed_signal)
+pylab.subplot(4, 1, 3)
+pylab.plot(frequencies, 20*sp.log10(fft))
+pylab.subplot(4, 1, 4)
+pylab.plot(frequencies, 20*sp.log10(windowed_fft))
 pylab.show()
