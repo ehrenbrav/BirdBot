@@ -28,8 +28,5 @@ def divide_audio_into_frames(data):
         sample += 1
     return frames
 
-if __name__ == "__main__":
-    divide_audio_into_frames()
-
 
 
