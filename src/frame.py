@@ -11,7 +11,7 @@ class Frame():
 
     def __init__(self):
         self.samples = []
-        self.framed_samples = []
+        self.windowed_samples = []
         self.spectrum = []
         self.mean = 0
         self.variance = 0
@@ -27,14 +27,14 @@ class Frame():
         print "Spectral Variance: " + str(self.spectral_variance)
         print "Spectral Rolloff: " + str(self.spectral_rolloff)
 
-    def graph_frame(self, frame):
+    def graph_frame(self):
         """Make a graph for debugging purposes."""
-        time = np.asarray(range(len(frame.samples)))
-        samples = np.asarray(frame.samples)
+        time = np.asarray(range(len(self.samples)))
+        samples = np.asarray(self.samples)
         plt.subplot(3, 1, 1)
         plt.plot(time, samples)
         plt.subplot(3, 1, 2)
-        plt.plot(time, self.framed_samples)
+        plt.plot(time, self.windowed_samples)
         plt.subplot(3, 1, 3)
         plt.plot(time, self.spectrum)
         plt.show()
