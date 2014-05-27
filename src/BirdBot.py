@@ -8,11 +8,11 @@ import pylab as plt
 import numpy as np
 
 sample_frequency, data = wav_file_importer.validate_and_read_file()
-frames = segmenter.divide_audio_into_frames(data)
+frames = segmenter.divide_audio_into_frames(sample_frequency, data)
 
 for i in range(len(frames)):
-    feature_extractor.extract_features(frames[i], sample_frequency)
-    frames[i].graph_frame()
+    feature_extractor.extract_features(frames[i])
+#    frames[i].graph_frame()
     
 mean_trajectory = []
 

@@ -5,7 +5,7 @@ frames of SAMPLES_PER_FRAME each.
 """
 from frame import Frame
 
-def divide_audio_into_frames(data):
+def divide_audio_into_frames(sample_frequency, data):
     """Breaks audio samples into individual frames."""
 
     # Break samples into equally-sized frames.
@@ -13,6 +13,7 @@ def divide_audio_into_frames(data):
     frame = Frame()
     frames = []
     sample = 0
+    frame.sample_frequency = sample_frequency
 
     while sample < len(data):
 
@@ -23,6 +24,7 @@ def divide_audio_into_frames(data):
             sample = sample - Frame.FRAME_SIZE / 2
             frames.append(frame)
             frame = Frame()
+            frame.sample_frequency = sample_frequency
         frame.samples.append(data[sample])
         counter += 1
         sample += 1

@@ -2,9 +2,9 @@
 
 import libxtract.xtract as xtract
 import scipy as sp
-from scipy import fftpack
+from scipy import fftpack, signal
 
-def extract_features(frame, sample_frequency):
+def extract_features(frame):
     """Extract the features from a given frame."""
 
     # Set up the data types for libxtract.

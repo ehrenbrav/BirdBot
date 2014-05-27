@@ -4,6 +4,7 @@ Typically it is 512 samples.
 """
 import pylab as plt
 import numpy as np
+from scipy import fftpack
 
 class Frame():
 
@@ -11,6 +12,7 @@ class Frame():
 
     def __init__(self):
         self.samples = []
+        self.sample_frequency = 0
         self.windowed_samples = []
         self.spectrum = []
         self.mean = 0
@@ -36,6 +38,7 @@ class Frame():
         plt.subplot(3, 1, 2)
         plt.plot(time, self.windowed_samples)
         plt.subplot(3, 1, 3)
-        plt.plot(time, self.spectrum)
+        frequencies = fftpack.rfftfreq(samples.size, 1./self.sample_frequency)
+        plt.plot(frequencies, self.spectrum)
         plt.show()
-        
+
