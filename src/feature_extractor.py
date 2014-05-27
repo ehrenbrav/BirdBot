@@ -12,15 +12,15 @@ def extract_features(frame):
     amplitude_data = xtract.doubleArray(number_of_samples)
     spectral_data = xtract.doubleArray(number_of_samples)
 
-    # Create the windowed signal.
+    # Create the windowed signal and FFT.
     frame.windowed_samples = calculate_windowed_frame(frame.samples, number_of_samples)
+    frame.spectrum = calculate_fft(frame.windowed_samples)
 
     # Copy this data into double arrays.
     for i in range(len(frame.samples)):
         amplitude_data[i] = int(frame.samples[i])
-
-    frame.spectrum = calculate_fft(frame.windowed_samples)
-
+        spectral_data[i] = int(frame.spectrum[i])
+        
     # Start storing the data.
     frame.mean = calculate_mean(amplitude_data, number_of_samples)
     argv = xtract.doubleArray(1)
@@ -29,6 +29,7 @@ def extract_features(frame):
     frame.spectral_centroid = calculate_spectral_centroid(spectral_data, number_of_samples)
     frame.spectral_variance = calculate_spectral_variance(spectral_data, number_of_samples, argv)
     frame.spectral_rolloff = calculate_rolloff(spectral_data, number_of_samples)
+    frame.mfcc = calculate_mfcc(spectral_data, number_of_samples)
 
 def calculate_mean(amplitude_data, number_of_samples):
     """Calculate the mean of a frame."""
@@ -62,3 +63,6 @@ def calculate_rolloff(spectral_data, number_of_samples):
     argv[1] = 0.95
     return xtract.xtract_rolloff(spectral_data, number_of_samples, argv)[1]
 
+def calculate_mfcc(spectral_data, number_of_samples):
+    """Calculate the MFCC."""
+    xtract.xtract_mfcc(spectral_data, number_of_samples, argv, result)

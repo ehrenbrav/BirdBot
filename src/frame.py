@@ -20,6 +20,7 @@ class Frame():
         self.spectral_centroid = 0
         self.spectral_variance = 0
         self.spectral_rolloff = 0
+        self.mfcc = []
 
     def print_frame_stats(self):
         """Print some basic debugging stats."""
