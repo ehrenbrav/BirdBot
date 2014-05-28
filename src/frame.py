@@ -8,13 +8,13 @@ from scipy import fftpack
 
 class Frame():
 
-    FRAME_SIZE = 512
+    FRAME_SIZE = 1024
 
     def __init__(self):
         self.samples = []
         self.sample_frequency = 0
         self.windowed_samples = []
-        self.spectrum = []
+        self.log_pow_spectrum = []
         self.mean = 0
         self.variance = 0
         self.spectral_centroid = 0
@@ -40,6 +40,6 @@ class Frame():
         plt.plot(time, self.windowed_samples)
         plt.subplot(3, 1, 3)
         frequencies = fftpack.rfftfreq(samples.size, 1./self.sample_frequency)
-        plt.plot(frequencies, self.spectrum)
+        plt.plot(frequencies, self.log_pow_spectrum)
         plt.show()
 
