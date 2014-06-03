@@ -17,6 +17,8 @@ def extract(sample_frequency, data):
     fp.addFeature('rolloff: SpectralRolloff FFTWindow=Hamming blockSize={0} stepSize={1}'.format(FRAME_SIZE, STEP_SIZE))
     fp.addFeature('variation: SpectralVariation FFTWindow=Hamming blockSize={0} stepSize={1}'.format(FRAME_SIZE, STEP_SIZE))
     fp.addFeature('zcr: ZCR blockSize={0} stepSize={1}'.format(FRAME_SIZE, STEP_SIZE))
+    fp.addFeature('energy: Energy blockSize={0} stepSize={1}'.format(FRAME_SIZE, STEP_SIZE))
+    fp.addFeature('spectral_stats: SpectralShapeStatistics FFTWindow=Hamming blockSize={0} stepSize={1}'.format(FRAME_SIZE, STEP_SIZE))
 
     # Create the Data Flow.
     df = fp.getDataFlow()
