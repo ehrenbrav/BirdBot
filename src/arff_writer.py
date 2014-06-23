@@ -12,6 +12,7 @@ are recorded in the files within that directory.
 import argparse
 import os
 import feature_extractor
+import wav_file_importer
 
 # Name of ARFF file.
 ARFF_NAME = 'training_data.arff'
@@ -43,8 +44,25 @@ with open(ARFF_NAME, 'w') as arff_file:
     engine = feature_extractor.configure_engine(44100)
     feature_list = engine.getOutputs().keys()
 
+    # Write time attribute.
+    arff_file.write("@ATTRIBUTE frame_number NUMERIC\n")
+
     # Write attributes.
     for feature in feature_list:
+
+        # Hanlde multiple MFCC coefficients.
+        if feature == "mfcc":
+            for counter in range(feature_extractor.NUMBER_MFCCS):
+                arff_file.write("@ATTRIBUTE mfcc" + str(counter) + " NUMERIC\n")
+            continue
+
+        # Handle multiple spectral statistics.
+        if feature == "spectral_stats":
+            for counter in range(4):
+                arff_file.write("@ATTRIBUTE spectral_stats" + str(counter) + " NUMERIC\n")
+            continue
+
+        # Write a normal attribute.
         arff_file.write("@ATTRIBUTE " + feature + " NUMERIC\n")
 
     # Write classes.
@@ -59,8 +77,20 @@ with open(ARFF_NAME, 'w') as arff_file:
     arff_file.write("@DATA\n")
     
     # Loop through all files and write into a single ARFF.
-    # TODO write multiple MFCCs and spectral_stats
+    for root, dirs, files in os.walk(path):
 
-
-    
-
+        # Skip the root directory.
+        if root == path:
+            continue
+            
+        # The class name is the name of the subdirectory.
+        class_name = os.path.split(root)[1]
+        
+        for file_name in files:
+            sample_frequency, data = wav_file_importer.validate_and_read_file(root + os.sep + file_name)
+            features = feature_extractor.extract(sample_frequency, data)
+            print features
+            print "---------"
+            print class_name
+            print "---------"
+        
