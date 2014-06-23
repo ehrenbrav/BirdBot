@@ -1,26 +1,18 @@
 #!/usr/bin/env python
-"""This is the main method of BirdBot."""
+"""
+This is the main application for BirdBot.
+"""
 
 import wav_file_importer
-import segmenter
 import feature_extractor
-import pylab as plt
-import numpy as np
+import cPickle
 
 sample_frequency, data = wav_file_importer.validate_and_read_file()
-frames = segmenter.divide_audio_into_frames(sample_frequency, data)
 
-#for i in range(len(frames)):
-for i in range(10):
-    feature_extractor.extract_features(frames[i])
-#    frames[i].print_frame_stats()
-    frames[i].graph_frame()
-    
-mean_trajectory = []
+features = feature_extractor.extract(sample_frequency, data)
 
-for frame in frames:
-    mean_trajectory.append(frame.mean)
+print features
+#cPickle.dump(features, open("features.obj", "wb"))
 
-frame_number = np.asarray(range(len(frames)))
-plt.plot(frame_number, np.asarray(mean_trajectory))
-plt.show()
+
+

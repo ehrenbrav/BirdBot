@@ -1,0 +1,11 @@
+@RELATION bird_calls
+@ATTRIBUTE mfcc NUMERIC
+@ATTRIBUTE energy NUMERIC
+@ATTRIBUTE variation NUMERIC
+@ATTRIBUTE flatness NUMERIC
+@ATTRIBUTE zcr NUMERIC
+@ATTRIBUTE flux NUMERIC
+@ATTRIBUTE autocorrelation NUMERIC
+@ATTRIBUTE spectral_stats NUMERIC
+@ATTRIBUTE rolloff NUMERIC
+@ATTRIBUTE class {test_data,crow}

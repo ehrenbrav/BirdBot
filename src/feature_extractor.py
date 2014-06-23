@@ -1,72 +1,56 @@
-"""This module generates the features for each frame it is passed."""
+"""
+This module inputs the sample frequency
+and a numpy array of raw amplitude data
+and outputs a dictionary of a number of
+extracted audio features.
+"""
 
-import libxtract.xtract as xtract
-import scipy as sp
+from yaafelib import *
 import numpy as np
-from scipy import fftpack, signal
 
-def extract_features(frame):
-    """Extract the features from a given frame."""
+# Set some constants.
+FRAME_SIZE = 1024
+STEP_SIZE = 512
+NUMBER_MFCCS = 13
 
-    # Set up the data types for libxtract.
-    number_of_samples = len(frame.samples)
-    amplitude_data = xtract.doubleArray(number_of_samples)
-    spectral_data = xtract.doubleArray(number_of_samples)
+def extract(sample_frequency, data):
+    """
+    This is the primary function of
+    this module.
+    """
 
-    # Create the windowed signal and FFT.
-    frame.windowed_samples = calculate_windowed_frame(frame.samples, number_of_samples)
-    mag_spectrum = calculate_fft(frame.windowed_samples)
-    pow_spectrum = (1.0/number_of_samples) * np.square(mag_spectrum)
-    frame.log_pow_spectrum = calculate_log_pow_spectrum(pow_spectrum)
+    # Ensure data is float64.
+    data = data.astype('float64')
+    
+    # Ensure it is of shape (1, len(data)).
+    data = np.reshape(data, (1, len(data)))
 
-    # Copy this data into double arrays.
-    for i in range(len(frame.samples)):
-        amplitude_data[i] = int(frame.samples[i])
-        spectral_data[i] = int(frame.log_pow_spectrum[i])
-        
-    # Start storing the data.
-    frame.mean = calculate_mean(amplitude_data, number_of_samples)
-    argv = xtract.doubleArray(1)
-    argv[0] = frame.mean
-    frame.variance = calculate_variance(amplitude_data, number_of_samples, argv)
-    frame.spectral_centroid = calculate_spectral_centroid(spectral_data, number_of_samples)
-    frame.spectral_variance = calculate_spectral_variance(spectral_data, number_of_samples, argv)
-    frame.spectral_rolloff = calculate_rolloff(spectral_data, number_of_samples)
+    # Configure the YAAFE engine.
+    engine = configure_engine(sample_frequency)
 
-def calculate_mean(amplitude_data, number_of_samples):
-    """Calculate the mean of a frame."""
-    return xtract.xtract_mean(amplitude_data, number_of_samples, None)[1]
+    # Extract features.
+    return engine.processAudio(data)
 
-def calculate_variance(amplitude_data, number_of_samples, argv):
-    """Calculate the variance of a frame."""
-    return xtract.xtract_variance(amplitude_data, number_of_samples, argv)[1]
+def configure_engine(sample_frequency):
+    """Set up the engine to extract the features we want."""
 
-def calculate_windowed_frame(samples, number_of_samples):
-    """Return the frame after applying
-    a Hamming window.."""
-    return samples * sp.signal.hamming(number_of_samples)
+    fp = FeaturePlan(sample_frequency)
+    fp.addFeature('mfcc: MFCC blockSize={0} stepSize={1} CepsNbCoeffs={2}'.format(FRAME_SIZE, STEP_SIZE, NUMBER_MFCCS))
+    # fp.addFeature('autocorrelation: AutoCorrelation blockSize={0} stepSize={1}'.format(FRAME_SIZE, STEP_SIZE))
+    fp.addFeature('flatness: SpectralFlatness FFTWindow=Hamming blockSize={0} stepSize={1}'.format(FRAME_SIZE, STEP_SIZE))
+    fp.addFeature('flux: SpectralFlux FFTWindow=Hamming blockSize={0} stepSize={1}'.format(FRAME_SIZE, STEP_SIZE))
+    fp.addFeature('rolloff: SpectralRolloff FFTWindow=Hamming blockSize={0} stepSize={1}'.format(FRAME_SIZE, STEP_SIZE))
+    fp.addFeature('variation: SpectralVariation FFTWindow=Hamming blockSize={0} stepSize={1}'.format(FRAME_SIZE, STEP_SIZE))
+    fp.addFeature('zcr: ZCR blockSize={0} stepSize={1}'.format(FRAME_SIZE, STEP_SIZE))
+    fp.addFeature('energy: Energy blockSize={0} stepSize={1}'.format(FRAME_SIZE, STEP_SIZE))
+    fp.addFeature('spectral_stats: SpectralShapeStatistics FFTWindow=Hamming blockSize={0} stepSize={1}'.format(FRAME_SIZE, STEP_SIZE))
 
-def calculate_fft(windowed_samples):
-    """Calculate the FFT."""
-    return abs(fftpack.rfft(windowed_samples))
+    # Create the Data Flow.
+    df = fp.getDataFlow()
 
-def calculate_spectral_centroid(spectral_data, number_of_samples):
-    """Calculate the spectral centroid."""
-    return xtract.xtract_spectral_centroid(spectral_data, number_of_samples, None)[1]
+    # Configure the YAAFE Engine.
+    engine = Engine()
+    engine.load(df)
+    return engine
 
-def calculate_spectral_variance(spectral_data, number_of_samples, argv):
-    """Calculate the bandwidth."""
-    return xtract.xtract_spectral_variance(spectral_data, number_of_samples, argv)[1]
-
-def calculate_rolloff(spectral_data, number_of_samples):
-    """Calculate spectral rolloff at 95%."""
-    argv = xtract.doubleArray(2)
-    argv[0] = float(44100) / float(number_of_samples)
-    argv[1] = 0.95
-    return xtract.xtract_rolloff(spectral_data, number_of_samples, argv)[1]
-
-def calculate_log_pow_spectrum(pow_spectrum, normalize=1):
-    """Calculate the log of the power spectrum."""
-    pow_spectrum[pow_spectrum <= 1e-30] = 1e-30
-    return 10 * np.log10(pow_spectrum)
-
+    
