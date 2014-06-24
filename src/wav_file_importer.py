@@ -23,6 +23,7 @@ def validate_and_read_file(file_path=None):
     sample_frequency, data = wavfile.read(file_path)
 
     # Print some info about the file.
+    print "File Name: " + file_path
     print "Sample Frequency: " + str(sample_frequency)
     duration = float(data.shape[0]) / float(sample_frequency)
     print "Duration (s): " + str(round(duration, 3))

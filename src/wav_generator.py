@@ -1,14 +1,20 @@
-#!/usr/bin/python
-import numpy as N
+#!/usr/bin/env python
+"""
+This module writes a wav file for testing purposes.
+"""
+
+# pylint: disable=C0103
+
+import numpy as np
 import wave
 
 def get_signal_data(frequency=1000, duration=1, volume=150, samplerate=44100):
     """Outputs a numpy array of intensities"""
     samples = duration * samplerate
     period = samplerate / float(frequency)
-    omega = N.pi * 2 / period
-    t = N.arange(samples, dtype=N.float)
-    y = volume * N.sin(t * omega)
+    omega = np.pi * 2 / period
+    t = np.arange(samples, dtype=np.float)
+    y = volume * np.sin(t * omega)
     return y
 
 def numpy2string(y):
@@ -19,14 +25,16 @@ def numpy2string(y):
     return signal
 
 class SoundFile:
+
     def  __init__(self, signal, filename, duration=1, samplerate=44100):
         self.file = wave.open(filename, 'wb')
         self.signal = signal
         self.sr = samplerate
         self.duration = duration
-  
+
     def write(self):
-        self.file.setparams((1, 2, self.sr, self.sr*self.duration, 'NONE', 'noncompressed'))
+        self.file.setparams(
+            (1, 2, self.sr, self.sr*self.duration, 'NONE', 'noncompressed'))
         # setparams takes a tuple of:
         # nchannels, sampwidth, framerate, nframes, comptype, compname
         self.file.writeframes(self.signal)
