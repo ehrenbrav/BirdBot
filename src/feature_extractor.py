@@ -12,6 +12,7 @@ import numpy as np
 FRAME_SIZE = 1024
 STEP_SIZE = 512
 NUMBER_MFCCS = 13
+NUMBER_SPECTRAL_STATS = 4
 
 def extract(sample_frequency, data):
     """

@@ -58,7 +58,7 @@ with open(ARFF_NAME, 'w') as arff_file:
 
         # Handle multiple spectral statistics.
         if feature == "spectral_stats":
-            for counter in range(4):
+            for counter in range(feature_extractor.NUMBER_SPECTRAL_STATS):
                 arff_file.write("@ATTRIBUTE spectral_stats" + str(counter) + " NUMERIC\n")
             continue
 
@@ -89,8 +89,35 @@ with open(ARFF_NAME, 'w') as arff_file:
         for file_name in files:
             sample_frequency, data = wav_file_importer.validate_and_read_file(root + os.sep + file_name)
             features = feature_extractor.extract(sample_frequency, data)
-            print features
-            print "---------"
-            print class_name
-            print "---------"
-        
+
+            # Figure out how many frames there are.
+            frame_count = features[feature_list[0]].shape[0]
+            
+            # Write the data. Ensure this is in the same order as 
+            # the attributes listed at the top of the file.
+            for frame in range(frame_count):
+
+                # Write the frame number.
+                arff_file.write(str(frame) + ",")
+                
+                # Loop through all features for this frame.
+                for feature_name in feature_list:
+                    feature = features[feature_name]
+
+                    # Handle MFCCs.
+                    if feature_name == "mfcc":
+                        for counter in range(feature_extractor.NUMBER_MFCCS):
+                            arff_file.write(str(feature[frame][counter]) + ",")
+                        continue
+
+                    # Handle spectral stats.
+                    if feature_name == "spectral_stats":
+                        for counter in range(feature_extractor.NUMBER_SPECTRAL_STATS):
+                            arff_file.write(str(feature[frame][counter]) + ",")
+                        continue
+
+                    # Handle the single-column data.
+                    arff_file.write(str(feature[frame][0]) + ",")
+                
+                # Now write the class.
+                arff_file.write(class_name + "\n")
