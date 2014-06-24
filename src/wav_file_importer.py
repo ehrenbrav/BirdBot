@@ -4,18 +4,20 @@ import subprocess
 from scipy.io import wavfile
 import numpy as np
 
-def validate_and_read_file():
-    """Grab the file path."""
-    parser = argparse.ArgumentParser()
-    parser.add_argument('file_path', type=str)
-    file_path = parser.parse_args().file_path
-    file_command = subprocess.Popen(['file', file_path], stdout=subprocess.PIPE)
-    output = file_command.stdout.read()
-    if 'WAVE' not in output:
-        print "Error: " \
-        + file_path \
-        + " does not appear to be a .wav file"
-        exit(1)
+def validate_and_read_file(file_path=None):
+    
+    if file_path is None:
+        """Grab the file path."""
+        parser = argparse.ArgumentParser()
+        parser.add_argument('file_path', type=str)
+        file_path = parser.parse_args().file_path
+        file_command = subprocess.Popen(['file', file_path], stdout=subprocess.PIPE)
+        output = file_command.stdout.read()
+        if 'WAVE' not in output:
+            print "Error: " \
+                + file_path \
+                + " does not appear to be a .wav file"
+            exit(1)
 
     # Read the wav file.
     sample_frequency, data = wavfile.read(file_path)
