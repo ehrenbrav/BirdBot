@@ -7,6 +7,8 @@ data and outputs a WEKA classifier.
 
 import os
 import arff_writer
+import weka.core.serialization as serialization
+from weka.core.dataset import Instances
 from weka.core.converters import Loader
 from weka.classifiers import Classifier, Evaluation
 from weka.core.classes import Random
@@ -31,7 +33,7 @@ def write_classifier(path):
 
 def process_arff(path):
     """
-    This function converts the ARFF file to a 
+    This function converts the ARFF file to a
     weka classifier.
     """
 
@@ -46,13 +48,18 @@ def process_arff(path):
     classifier = Classifier(classname="weka.classifiers.trees.RandomForest")
     classifier.build_classifier(training_data)
 
+    # Save the classifier.
+    serialization.write_all(CLASSIFIER_NAME,
+                            [classifier,
+                             Instances.template_instances(training_data)])
+
     # Cross-validate.
     evaluation = Evaluation(training_data)
     evaluation.crossvalidate_model(classifier, training_data, 10, Random(42))
-    print(evaluation.to_summary())
-    print(evaluation.to_class_details())
-    print(evaluation.to_matrix())
-    
+    print evaluation.to_summary()
+    print evaluation.to_class_details()
+    print evaluation.to_matrix()
+
 if __name__ == '__main__':
 
     import argparse
@@ -68,7 +75,7 @@ if __name__ == '__main__':
         jvm.start()
         write_classifier(parser.parse_args().path)
     except Exception, e:
-        print(e)
+        print e
     finally:
         jvm.stop()
-        
+

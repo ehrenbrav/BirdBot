@@ -16,6 +16,9 @@ import wav_file_importer
 # Name of ARFF file.
 ARFF_NAME = 'training_data.arff'
 
+# Assumed sample rate.
+SAMPLE_RATE = 44100
+
 def write_arff(path):
     """
     Write the ARFF file given the path
@@ -31,8 +34,7 @@ def write_arff(path):
         arff_file.write("@RELATION bird_calls\n")
 
         # Get the list of the features we'll be extracting.
-        engine = feature_extractor.configure_engine(44100)
-        feature_list = engine.getOutputs().keys()
+        feature_list = get_feature_list()
 
         # Write time attribute.
         arff_file.write("@ATTRIBUTE frame_number NUMERIC\n")
@@ -131,6 +133,11 @@ def write_data(features, arff_file, feature_list, class_name):
 
         # Now write the class.
         arff_file.write(class_name + "\n")
+
+def get_feature_list():
+    engine = feature_extractor.configure_engine(SAMPLE_RATE)
+    return engine.getOutputs().keys()
+
 
 if __name__ == "__main__":
 
