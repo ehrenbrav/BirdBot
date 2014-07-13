@@ -15,10 +15,8 @@ import argparse
 import matplotlib as mpl
 # Force matplotlib to not use any Xwindows backend.
 mpl.use('Agg')
-import pylab
+from matplotlib import pyplot
 
-GRAPH_WIDTH = 1024
-GRAPH_HEIGHT = 128
 SAMPLE_DURATION = 3
 
 def graph_spectrogram(path):
@@ -30,7 +28,11 @@ def graph_spectrogram(path):
     sample_rate, full_audio_data = wfi.validate_and_read_file(path)
     frame_size = sample_rate * SAMPLE_DURATION
     remainder = len(full_audio_data) % frame_size
-    print remainder
+
+    # Check to see we actually have enough audio data.
+    if len(full_audio_data) < frame_size:
+        print "Audio clip is too short"
+        exit(1)
 
     # Chop the wav file into equally sized pieces, starting from
     # the front, then do the same starting from the back.
@@ -44,8 +46,14 @@ def graph_spectrogram(path):
     counter = 0
     for sample in front_samples + end_samples:
 
-        pylab.specgram(sample, Fs=sample_rate)
-        pylab.savefig('spectrogram' + str(counter) + '.png')
+        pyplot.gray()
+        pyplot.specgram(sample, Fs=sample_rate)
+
+        # Limit the frequencies.
+        pyplot.ylim((100, 13000))
+
+        pyplot.savefig('spectrogram' + str(counter) + '.png',
+                       bbox_inches='tight', pad_inches=0)
         counter = counter + 1
 
 if __name__ == '__main__':
