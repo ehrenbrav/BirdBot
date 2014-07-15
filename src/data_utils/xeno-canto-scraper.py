@@ -11,7 +11,7 @@ import sys
 XENO_CANTO_URL = \
 'http://www.xeno-canto.org/api/2/recordings?query=+cnt%3A"United+States"'
 
-def parse():
+def download_xc_metadata():
     """Grab all the results and add them to the database."""
 
     # First, figure out how many pages of data there are.
@@ -33,7 +33,7 @@ def parse():
 
     try:
         connection = psycopg2.connect(
-            database = 'xeno-canto-data', user='ehrenbrav')
+            database='xeno-canto-data', user='ehrenbrav')
         cursor = connection.cursor()
 
         for recording in recordings:
@@ -90,4 +90,4 @@ def get_response(url):
     return response_from_website
 
 if __name__ == "__main__":
-    parse()
+    download_xc_metadata()
