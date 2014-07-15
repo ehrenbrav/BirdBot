@@ -12,12 +12,17 @@ remainder, to ensure that the entire wav file is covered.
 
 import wav_file_importer as wfi
 import argparse
+import os
 import matplotlib as mpl
 # Force matplotlib to not use any Xwindows backend.
 mpl.use('Agg')
 from matplotlib import pyplot
 
+# How long do we want our spectrograms?
 SAMPLE_DURATION = 3
+
+# Where to save the spectrograms.
+SPECTROGRAM_SAVE_PATH = "../training_data/spectrograms/"
 
 def graph_spectrogram(path):
     """
@@ -46,18 +51,38 @@ def graph_spectrogram(path):
     counter = 0
     for sample in front_samples + end_samples:
 
+        # Get the name of the wav file.
+        filename = os.path.basename(path)
+
+        # Get add the number of spectrogram sample this is.
+        filename = filename.replace(".wav", "_" + str(counter) + ".png")
+        savepath = SPECTROGRAM_SAVE_PATH + filename
+
+        # If the spectrogram exists, continue.
+        if os.path.exists(savepath):
+            continue
+
         pyplot.gray()
         pyplot.specgram(sample, Fs=sample_rate)
 
         # Limit the frequencies.
         pyplot.ylim((100, 13000))
 
-        pyplot.savefig('spectrogram' + str(counter) + '.png',
-                       bbox_inches='tight', pad_inches=0)
+        # Save.
+        pyplot.savefig(savepath, bbox_inches='tight', pad_inches=0)
+        print "Writing " + filename
         counter = counter + 1
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('file_path', type=str)
-    file_path = parser.parse_args().file_path
-    graph_spectrogram(file_path)
+    path = parser.parse_args().file_path
+
+    # If the argument is a file, make the spectrogram.
+    if os.path.isfile(path):
+        graph_spectrogram(path)
+
+    else:
+        for file_in_dir in os.listdir(path):
+            file_in_dir_path = os.path.join(path, file_in_dir)
+            graph_spectrogram(file_in_dir_path)
