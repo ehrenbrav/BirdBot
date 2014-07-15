@@ -29,6 +29,10 @@ def graph_spectrogram(path):
     Create the spectrograms and save as png files.
     """
 
+    # Get the name of the wav file.
+    filename = os.path.basename(path)
+    print "Processing " + filename
+
     # Load the wav file.
     sample_rate, full_audio_data = wfi.validate_and_read_file(path)
     frame_size = sample_rate * SAMPLE_DURATION
@@ -51,9 +55,6 @@ def graph_spectrogram(path):
     counter = 0
     for sample in front_samples + end_samples:
 
-        # Get the name of the wav file.
-        filename = os.path.basename(path)
-
         # Get add the number of spectrogram sample this is.
         filename = filename.replace(".wav", "_" + str(counter) + ".png")
         savepath = SPECTROGRAM_SAVE_PATH + filename
@@ -70,7 +71,6 @@ def graph_spectrogram(path):
 
         # Save.
         pyplot.savefig(savepath, bbox_inches='tight', pad_inches=0)
-        print "Writing " + filename
         counter = counter + 1
 
 if __name__ == '__main__':
