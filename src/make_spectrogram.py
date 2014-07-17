@@ -17,12 +17,17 @@ import matplotlib as mpl
 # Force matplotlib to not use any Xwindows backend.
 mpl.use('Agg')
 from matplotlib import pyplot
+import numpy as np
 
 # How long do we want our spectrograms?
 SAMPLE_DURATION = 4
 
 # Where to save the spectrograms.
 SPECTROGRAM_SAVE_PATH = "../training_data/spectrograms/"
+
+# Frequency limits.
+MAX_FREQUENCY = 13000
+MIN_FREQUENCY = 100
 
 def graph_spectrogram(path):
     """Create the spectrograms and save as png files."""
@@ -62,14 +67,18 @@ def graph_spectrogram(path):
         if os.path.exists(savepath):
             continue
 
-        pyplot.gray()
-        pyplot.specgram(sample, Fs=sample_rate)
+        # Compute the spectrogram.
+        Pxx, freqs, bins, im  = pyplot.specgram(
+            sample, NFFT=1024, Fs=sample_rate, noverlap=512)
 
-        # Limit the frequencies.
-        pyplot.ylim((100, 13000))
+        # Chop off useless frequencies.
+        Pxx = Pxx[(freqs > MIN_FREQUENCY) & (freqs < MAX_FREQUENCY)]
 
-        # Save.
-        pyplot.savefig(savepath, bbox_inches='tight', pad_inches=0)
+        # Convert to dB scale and flip.
+        data = 10. * np.log10(Pxx)
+        data = np.flipud(data)
+
+        pyplot.imsave(savepath, data, cmap='Greys')
         print "Writing " + savepath
 
 if __name__ == '__main__':
