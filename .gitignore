@@ -2,4 +2,4 @@
 *.pyc
 *.weka
 *.png
-/training_data/audio
+/training_data

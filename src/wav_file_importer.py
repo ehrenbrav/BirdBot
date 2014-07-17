@@ -1,26 +1,25 @@
 """Grabs and validates the file from the command line"""
-import argparse
 import subprocess
 from scipy.io import wavfile
 import numpy as np
 
 def validate_and_read_file(file_path=None):
-    
-    if file_path is None:
-        """Grab the file path."""
-        parser = argparse.ArgumentParser()
-        parser.add_argument('file_path', type=str)
-        file_path = parser.parse_args().file_path
-        file_command = subprocess.Popen(['file', file_path], stdout=subprocess.PIPE)
-        output = file_command.stdout.read()
-        if 'WAVE' not in output:
-            print "Error: " \
-                + file_path \
-                + " does not appear to be a .wav file"
-            exit(1)
+    """Get the data out of a wav or mp3 file."""
 
-    # Read the wav file.
-    sample_frequency, data = wavfile.read(file_path)
+    # Handle various audio formats.
+    file_command = subprocess.Popen(
+        ['file', file_path], stdout=subprocess.PIPE)
+    output = file_command.stdout.read()
+
+    if 'MPEG' in output:
+        sample_frequency, data = extract_mp3(file_path)
+    elif 'WAVE' in output:
+        sample_frequency, data = wavfile.read(file_path)
+    else:
+        print "Error: " \
+            + file_path \
+            + " does not appear to be a .wav file"
+        exit(1)
 
     # Print some info about the file.
     print "File Name: " + file_path
@@ -33,6 +32,22 @@ def validate_and_read_file(file_path=None):
     if len(data.shape) > 1:
         data = np.delete(data, 1, 1)
         data = data.flatten()
-        
+
     # Return sample_frequency, data
     return sample_frequency, data
+
+def extract_mp3(path):
+    """Use ffmpeg to get the audio data."""
+    sample_rate = 44100
+
+    command = ['ffmpeg',                # Path to native binary.
+               '-i', path,              # Location of mp3.
+               '-f', 's16le',           # Format.
+               '-acodec', 'pcm_s16le',  # Get raw 16-bit output.
+               '-ar', str(sample_rate), # Sample rate.
+               '-ac', '1',              # Mono.
+               '-' ]
+    pipe = subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=10**8)
+    raw_audio = pipe.stdout.read()
+    data = np.fromstring(raw_audio, dtype='int16')
+    return sample_rate, data

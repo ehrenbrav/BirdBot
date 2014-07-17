@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 This script downloads *all* the audio data (in
-mp3 format) that is specified in the meta-data
+mostly mp3 format) that is specified in the meta-data
 grabbed from the Xeno-Canto website.
 """
 

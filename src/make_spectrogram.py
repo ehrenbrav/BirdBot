@@ -19,15 +19,13 @@ mpl.use('Agg')
 from matplotlib import pyplot
 
 # How long do we want our spectrograms?
-SAMPLE_DURATION = 3
+SAMPLE_DURATION = 4
 
 # Where to save the spectrograms.
 SPECTROGRAM_SAVE_PATH = "../training_data/spectrograms/"
 
 def graph_spectrogram(path):
-    """
-    Create the spectrograms and save as png files.
-    """
+    """Create the spectrograms and save as png files."""
 
     # Get the name of the wav file.
     filename = os.path.basename(path)
@@ -52,12 +50,13 @@ def graph_spectrogram(path):
             for i in range(remainder, len(full_audio_data), frame_size)]
 
     # Make the spectrograms.
-    counter = 0
-    for sample in front_samples + end_samples:
+    for counter, sample in enumerate(front_samples + end_samples):
 
         # Get add the number of spectrogram sample this is.
-        filename = filename.replace(".wav", "_" + str(counter) + ".png")
-        savepath = SPECTROGRAM_SAVE_PATH + filename
+        savename = filename
+        savename = savename.replace(".wav", "_" + str(counter) + ".png")
+        savename = savename.replace(".mp3", "_" + str(counter) + ".png")
+        savepath = SPECTROGRAM_SAVE_PATH + savename
 
         # If the spectrogram exists, continue.
         if os.path.exists(savepath):
@@ -71,7 +70,7 @@ def graph_spectrogram(path):
 
         # Save.
         pyplot.savefig(savepath, bbox_inches='tight', pad_inches=0)
-        counter = counter + 1
+        print "Writing " + savepath
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
