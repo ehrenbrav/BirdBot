@@ -24,23 +24,20 @@ import numpy as np
 # How long do we want our spectrograms?
 SAMPLE_DURATION = 4
 
-# Where to save the spectrograms.
-SPECTROGRAM_SAVE_PATH = "../training_data/spectrograms/"
-
 # Frequency limits.
 MAX_FREQUENCY = 13000
 MIN_FREQUENCY = 100
 
-def graph_spectrogram(path):
+def graph_spectrogram(source_path, destination_path):
     """Create the spectrograms and save as png files."""
 
     # Get the name of the wav file.
-    filename = os.path.basename(path)
+    filename = os.path.basename(source_path)
     logging.info("Processing " + filename)
     print "Processing " + filename
 
     # Load the wav file.
-    sample_rate, full_audio_data = wfi.validate_and_read_file(path)
+    sample_rate, full_audio_data = wfi.validate_and_read_file(source_path)
     frame_size = sample_rate * SAMPLE_DURATION
     remainder = len(full_audio_data) % frame_size
 
@@ -64,7 +61,7 @@ def graph_spectrogram(path):
         savename = filename
         savename = savename.replace(".wav", "_" + str(counter) + ".png")
         savename = savename.replace(".mp3", "_" + str(counter) + ".png")
-        savepath = SPECTROGRAM_SAVE_PATH + savename
+        savepath = destination_path + savename
 
         # If the spectrogram exists, continue.
         if os.path.exists(savepath):
@@ -86,8 +83,14 @@ def graph_spectrogram(path):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('file_path', type=str)
-    path = parser.parse_args().file_path
+    parser.add_argument('source_path', type=str)
+    parser.add_argument('destination_path', type=str)
+    args = parser.parse_args()
+    source_path = args.source_path
+    destination_path = args.destination_path
+
+    if not destination_path.endswith(os.sep):
+        destination_path = destination_path + os.sep
 
     # Set up logging.
     log_name = datetime.datetime.now().strftime('%y%m%d-%H%M') + ".log"
@@ -95,10 +98,10 @@ if __name__ == '__main__':
                         format='%(levelname)s %(asctime)s: %(message)s')
 
     # If the argument is a file, make the spectrogram.
-    if os.path.isfile(path):
-        graph_spectrogram(path)
+    if os.path.isfile(source_path):
+        graph_spectrogram(source_path, destination_path)
 
     else:
-        for file_in_dir in os.listdir(path):
-            file_in_dir_path = os.path.join(path, file_in_dir)
-            graph_spectrogram(file_in_dir_path)
+        for file_in_dir in os.listdir(source_path):
+            file_in_dir_path = os.path.join(source_path, file_in_dir)
+            graph_spectrogram(file_in_dir_path, destination_path)

@@ -1,5 +1,6 @@
 *~
 *.pyc
 *.weka
+*.log
 *.png
 /training_data
