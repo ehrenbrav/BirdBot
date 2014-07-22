@@ -19,6 +19,7 @@ import matplotlib as mpl
 
 # Force matplotlib to not use any Xwindows backend.
 mpl.use('Agg')
+
 from matplotlib import pyplot
 import numpy as np
 
