@@ -1,5 +1,6 @@
 """Grabs and validates the file from the command line"""
 import subprocess
+import logging
 from scipy.io import wavfile
 import numpy as np
 
@@ -16,17 +17,17 @@ def validate_and_read_file(file_path=None):
     elif 'WAVE' in output:
         sample_frequency, data = wavfile.read(file_path)
     else:
-        print "Error: " \
+        logging.error("Error: " \
             + file_path \
-            + " does not appear to be a .wav file"
+            + " does not appear to be a .wav file")
         exit(1)
 
     # Print some info about the file.
-    print "File Name: " + file_path
-    print "Sample Frequency: " + str(sample_frequency)
+    logging.info("File Name: " + file_path)
+    logging.info("Sample Frequency: " + str(sample_frequency))
     duration = float(data.shape[0]) / float(sample_frequency)
-    print "Duration (s): " + str(round(duration, 3))
-    print "Channels (we only extract the first): " + str(len(data.shape))
+    logging.info("Duration (s): " + str(round(duration, 3)))
+    logging.info("Channels (we only extract the first): " + str(len(data.shape)))
 
     # If there are two columns of data (stereo), only keep one.
     if len(data.shape) > 1:
@@ -46,6 +47,7 @@ def extract_mp3(path):
                '-acodec', 'pcm_s16le',  # Get raw 16-bit output.
                '-ar', str(sample_rate), # Sample rate.
                '-ac', '1',              # Mono.
+               '-loglevel', 'quiet',    # Limit output.
                '-' ]
     pipe = subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=10**8)
     raw_audio = pipe.stdout.read()

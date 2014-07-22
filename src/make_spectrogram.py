@@ -11,6 +11,8 @@ remainder, to ensure that the entire wav file is covered.
 #pylint: disable=C0103
 
 import wav_file_importer as wfi
+import logging
+import datetime
 import argparse
 import os
 import matplotlib as mpl
@@ -34,6 +36,7 @@ def graph_spectrogram(path):
 
     # Get the name of the wav file.
     filename = os.path.basename(path)
+    logging.info("Processing " + filename)
     print "Processing " + filename
 
     # Load the wav file.
@@ -43,8 +46,8 @@ def graph_spectrogram(path):
 
     # Check to see we actually have enough audio data.
     if len(full_audio_data) < frame_size:
-        print "Audio clip is too short"
-        exit(1)
+        logging.error("Audio clip is too short")
+        return
 
     # Chop the wav file into equally sized pieces, starting from
     # the front, then do the same starting from the back.
@@ -79,12 +82,17 @@ def graph_spectrogram(path):
         data = np.flipud(data)
 
         pyplot.imsave(savepath, data, cmap='Greys')
-        print "Writing " + savepath
+        logging.info("Writing " + savepath)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('file_path', type=str)
     path = parser.parse_args().file_path
+
+    # Set up logging.
+    log_name = datetime.datetime.now().strftime('%y%m%d-%H%M') + ".log"
+    logging.basicConfig(filename="../" + log_name, level=logging.INFO,
+                        format='%(levelname)s %(asctime)s: %(message)s')
 
     # If the argument is a file, make the spectrogram.
     if os.path.isfile(path):
