@@ -16,6 +16,7 @@ import datetime
 import argparse
 import os
 import matplotlib as mpl
+
 # Force matplotlib to not use any Xwindows backend.
 mpl.use('Agg')
 from matplotlib import pyplot
