@@ -8,11 +8,12 @@ def validate_and_read_file(file_path=None):
     """Get the data out of a wav or mp3 file."""
 
     # Handle various audio formats.
+    # TODO check to see if file exists
     file_command = subprocess.Popen(
         ['file', file_path], stdout=subprocess.PIPE)
     output = file_command.stdout.read()
 
-    if 'MPEG' in output:
+    if 'ID3' in output:
         sample_frequency, data = extract_mp3(file_path)
     elif 'WAVE' in output:
         sample_frequency, data = wavfile.read(file_path)
@@ -38,10 +39,11 @@ def validate_and_read_file(file_path=None):
     return sample_frequency, data
 
 def extract_mp3(path):
-    """Use ffmpeg to get the audio data."""
+    """Use avconv to get the audio data."""
     sample_rate = 44100
 
-    command = ['ffmpeg',                # Path to native binary.
+    # TODO check to see if ffmpeg exists.
+    command = ['avconv',                # Path to native binary.
                '-i', path,              # Location of mp3.
                '-f', 's16le',           # Format.
                '-acodec', 'pcm_s16le',  # Get raw 16-bit output.
@@ -49,7 +51,7 @@ def extract_mp3(path):
                '-ac', '1',              # Mono.
                '-loglevel', 'quiet',    # Limit output.
                '-' ]
-    pipe = subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=10**8)
+    pipe = subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=10**8, close_fds=True)
     raw_audio = pipe.stdout.read()
     data = np.fromstring(raw_audio, dtype='int16')
     return sample_rate, data
