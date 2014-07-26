@@ -1,0 +1,10 @@
+PYTHON
+======
+Numpy
+Scipy?
+psycopg2
+
+LINUX
+=====
+file
+avconv
