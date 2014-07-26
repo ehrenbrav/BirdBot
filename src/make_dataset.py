@@ -28,7 +28,7 @@ from matplotlib import pyplot
 import numpy as np
 
 # Write the actual spectrogram?
-DRAW_SPECTROGRAM = True
+DRAW_SPECTROGRAM = False
 
 # How long do we want our spectrograms?
 SPECTROGRAM_DURATION = 4
@@ -39,6 +39,9 @@ MIN_FREQUENCY = 100
 
 # What percent of the dataset to designate for training?
 PERCENT_TRAINING = .8
+
+# Dimensions of width and height (always a square) of the graph.
+SPECTROGRAM_SIDE_SIZE = 128
 
 #pylint: disable=R0914,W0621 
 def add_audio_to_dataset(
@@ -178,7 +181,8 @@ def calculate_spectrogram(sample, sample_rate):
     data = np.flipud(data)
 
     # Resize to 256 x 256.
-    scaled_data = sp.misc.imresize(data, (256, 256))
+    scaled_data = sp.misc.imresize(
+        data, (SPECTROGRAM_SIDE_SIZE, SPECTROGRAM_SIDE_SIZE))
 
     # Cast data to int8.
     return scaled_data

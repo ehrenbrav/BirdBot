@@ -192,10 +192,9 @@ def load_data(dataset):
             (test_set_x, test_set_y), classification_map]
     return rval
 
-# TODO set batch_size to reasonable value.
 def sgd_optimization_mnist(learning_rate=0.13, n_epochs=1000,
                            dataset='dataset.pkl.gz',
-                           batch_size=20):
+                           batch_size=100):
     """
     Demonstrate stochastic gradient descent optimization of a log-linear
     model
