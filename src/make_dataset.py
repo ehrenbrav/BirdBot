@@ -14,6 +14,7 @@ import datetime
 import argparse
 import os
 import matplotlib as mpl
+import scipy as sp
 import psycopg2
 import sys
 import cPickle
@@ -27,7 +28,7 @@ from matplotlib import pyplot
 import numpy as np
 
 # Write the actual spectrogram?
-DRAW_SPECTROGRAM = False
+DRAW_SPECTROGRAM = True
 
 # How long do we want our spectrograms?
 SPECTROGRAM_DURATION = 4
@@ -57,6 +58,7 @@ def add_audio_to_dataset(
     # Check to see we actually have enough audio data.
     if len(full_audio_data) < frame_size:
         logging.error("Audio clip is too short")
+        print "Audio clip is too short."
         return
 
     # Get the classification of this recording.
@@ -106,7 +108,7 @@ def get_classification(filename, classification_map):
 
         # Add this to our classification_map if not already there.
         if classification not in classification_map:
-            classification_map[classification] = len(classification_map) + 1
+            classification_map[classification] = len(classification_map)
 
         return classification_map[classification]
 
@@ -118,11 +120,15 @@ def get_classification(filename, classification_map):
         if connection:
             connection.close()
 
-def divide_dataset(dataset):
+def divide_dataset(dataset, classification_map):
     """
     This divides the dataset into
     training, testing, and validation
-    data.
+    data. The data is returned as a tuple:
+    (testing_data, validation_data, testing_data).
+    Each of these is itself a tuple: (examples, classifications).
+    Examples is a ndarray of shape (num_examples, (width x height)).
+    Classifications is a ndarray of shape (num_examples).
     """
     #pylint: disable=E1101
     
@@ -151,7 +157,7 @@ def divide_dataset(dataset):
     validation_data = (examples[(num_examples - num_validate):],
                        classifications[(num_examples - num_validate):])
 
-    return (training_data, validation_data, testing_data)
+    return (training_data, validation_data, testing_data, classification_map)
 
 def calculate_spectrogram(sample, sample_rate):
     """
@@ -171,8 +177,11 @@ def calculate_spectrogram(sample, sample_rate):
     data = 10. * np.log10(Pxx)
     data = np.flipud(data)
 
+    # Resize to 256 x 256.
+    scaled_data = sp.misc.imresize(data, (256, 256))
+
     # Cast data to int8.
-    return data.astype('int8')
+    return scaled_data
 
 def draw_spectrogram(filename, destination_path, data, counter):
     """
@@ -206,7 +215,7 @@ if __name__ == '__main__':
     source_path = args.source_path
     destination_path = ""
     if args.output:
-        destination_path = args.destination_path
+        destination_path = args.output
 
     if not destination_path.endswith(os.sep):
         destination_path = destination_path + os.sep
@@ -230,7 +239,7 @@ if __name__ == '__main__':
                 file_in_dir_path, destination_path, dataset, classification_map)
 
         # Divide the dataset into training, validation, and testing data.
-        divided_dataset = divide_dataset(dataset)
+        divided_dataset = divide_dataset(dataset, classification_map)
 
         # Save the dataset.
         print "Saving data..."
