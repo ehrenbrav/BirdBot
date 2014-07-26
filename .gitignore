@@ -3,4 +3,7 @@
 *.weka
 *.log
 *.png
+*.gz
 /training_data
+.ropeproject/
+classification_map.txt
