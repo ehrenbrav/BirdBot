@@ -1,0 +1,3 @@
+Add another species and get logistic regression working
+Try 256x256
+Test whether GPU is working

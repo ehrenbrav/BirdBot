@@ -20,6 +20,7 @@ import sys
 import cPickle
 import gzip
 import json
+from random import shuffle
 
 # Force matplotlib to not use any Xwindows backend.
 mpl.use('Agg')
@@ -38,7 +39,7 @@ MAX_FREQUENCY = 13000
 MIN_FREQUENCY = 100
 
 # What percent of the dataset to designate for training?
-PERCENT_TRAINING = .8
+PERCENT_TRAINING = .7
 
 # Dimensions of width and height (always a square) of the graph.
 SPECTROGRAM_SIDE_SIZE = 128
@@ -134,6 +135,11 @@ def divide_dataset(dataset, classification_map):
     Classifications is a ndarray of shape (num_examples).
     """
     #pylint: disable=E1101
+
+    # Shuffle the dataset to ensure we don't have any
+    # unintentional biases due to how the examples
+    # are indexed.
+    shuffle(dataset)
     
     # Get shape of the data (width x height)
     spectrogram_size = dataset[0][0].shape[0]
@@ -253,6 +259,12 @@ if __name__ == '__main__':
 
         # Save the classification map.
         json.dump(classification_map, open("classification_map.txt", 'w'))
+
+        # Print some stats.
+        logging.info("Total examples: " + len(dataset))
+        logging.info("Total classes: " + len(classification_map))
+        print "Total examples: " + len(dataset)
+        print "Total classes: " + len(classification_map)
 
     else:
         print "Error: file not found: " + source_path

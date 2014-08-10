@@ -192,9 +192,9 @@ def load_data(dataset):
             (test_set_x, test_set_y), classification_map]
     return rval
 
-def sgd_optimization_mnist(learning_rate=0.13, n_epochs=1000,
+def sgd_optimization_mnist(learning_rate=0.13, n_epochs=50,
                            dataset='dataset.pkl.gz',
-                           batch_size=100):
+                           batch_size=200):
     """
     Demonstrate stochastic gradient descent optimization of a log-linear
     model
