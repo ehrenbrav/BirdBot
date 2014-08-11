@@ -42,7 +42,7 @@ MIN_FREQUENCY = 100
 PERCENT_TRAINING = .7
 
 # Dimensions of width and height (always a square) of the graph.
-SPECTROGRAM_SIDE_SIZE = 128
+SPECTROGRAM_SIDE_SIZE = 256
 
 #pylint: disable=R0914,W0621 
 def add_audio_to_dataset(
@@ -220,12 +220,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('source_path', type=str)
     parser.add_argument(
-        '--output', help="Directory to write the spectrograms.", type=str)
+        '--outputdir', help="Directory to write the spectrograms.", type=str)
     args = parser.parse_args()
     source_path = args.source_path
     destination_path = ""
-    if args.output:
-        destination_path = args.output
+    if args.outputdir:
+        destination_path = args.outputdir
 
     if not destination_path.endswith(os.sep):
         destination_path = destination_path + os.sep
@@ -261,10 +261,10 @@ if __name__ == '__main__':
         json.dump(classification_map, open("classification_map.txt", 'w'))
 
         # Print some stats.
-        logging.info("Total examples: " + len(dataset))
-        logging.info("Total classes: " + len(classification_map))
-        print "Total examples: " + len(dataset)
-        print "Total classes: " + len(classification_map)
+        logging.info("Total examples: " + str(len(dataset)))
+        logging.info("Total classes: " + str(len(classification_map)))
+        print "Total examples: " + str(len(dataset))
+        print "Total classes: " + str(len(classification_map))
 
     else:
         print "Error: file not found: " + source_path

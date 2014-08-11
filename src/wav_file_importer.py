@@ -1,14 +1,19 @@
 """Grabs and validates the file from the command line"""
 import subprocess
 import logging
+import os.path
 from scipy.io import wavfile
 import numpy as np
 
 def validate_and_read_file(file_path=None):
     """Get the data out of a wav or mp3 file."""
 
+    # Check if file exists.
+    if not os.path.isfile(file_path):
+        print "Error: no file found at " + file_path
+        exit(1)
+
     # Handle various audio formats.
-    # TODO check to see if file exists
     file_command = subprocess.Popen(
         ['file', file_path], stdout=subprocess.PIPE)
     output = file_command.stdout.read()
@@ -42,8 +47,19 @@ def extract_mp3(path):
     """Use avconv to get the audio data."""
     sample_rate = 44100
 
-    # TODO check to see if ffmpeg exists.
-    command = ['avconv',                # Path to native binary.
+    # Check whether we have ffmpeg or avconv.
+    if os.path.isfile("/usr/bin/avconv"):
+        mp3_extractor = 'avconv'
+    elif os.path.isfile("/usr/bin/ffmpeg"):
+        mp3_extractor = 'ffmpeg'
+    else:
+        print """Error: no mp3 extractor found.
+                 We require either ffmpeg or avconv
+                 and expect these to be in the /usr/bin
+                 directory."""
+        exit(1)
+
+    command = [mp3_extractor,           # Path to native binary.
                '-i', path,              # Location of mp3.
                '-f', 's16le',           # Format.
                '-acodec', 'pcm_s16le',  # Get raw 16-bit output.
@@ -51,7 +67,8 @@ def extract_mp3(path):
                '-ac', '1',              # Mono.
                '-loglevel', 'quiet',    # Limit output.
                '-' ]
-    pipe = subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=10**8, close_fds=True)
+    pipe = subprocess.Popen(
+        command, stdout=subprocess.PIPE, bufsize=10**8, close_fds=True)
     raw_audio = pipe.stdout.read()
     data = np.fromstring(raw_audio, dtype='int16')
     return sample_rate, data

@@ -3,8 +3,10 @@ PYTHON
 Numpy
 Scipy?
 psycopg2
+Theano
 
 LINUX
 =====
 file
 avconv
+libgpuarray
