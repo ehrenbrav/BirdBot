@@ -105,7 +105,7 @@ class LeNetConvPoolLayer(object):
         self.params = [self.W, self.b]
 
 
-def evaluate_lenet5(learning_rate=0.1, n_epochs=30,
+def evaluate_lenet5(learning_rate=0.1, n_epochs=200,
                     dataset='dataset.pkl.gz',
                     nkerns=[20, 50], batch_size=400,
                     filter_size=[15, 10], poolsize=(2, 2),
