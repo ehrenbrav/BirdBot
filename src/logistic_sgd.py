@@ -192,7 +192,7 @@ def load_data(dataset):
             (test_set_x, test_set_y), classification_map]
     return rval
 
-def sgd_optimization_mnist(learning_rate=0.13, n_epochs=50,
+def sgd_optimization_mnist(learning_rate=0.03, n_epochs=100,
                            dataset='dataset.pkl.gz',
                            batch_size=200):
     """

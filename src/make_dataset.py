@@ -42,7 +42,7 @@ MIN_FREQUENCY = 100
 PERCENT_TRAINING = .7
 
 # Dimensions of width and height (always a square) of the graph.
-SPECTROGRAM_SIDE_SIZE = 256
+SPECTROGRAM_SIDE_SIZE = 128
 
 #pylint: disable=R0914,W0621 
 def add_audio_to_dataset(

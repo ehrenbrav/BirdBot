@@ -107,7 +107,7 @@ class LeNetConvPoolLayer(object):
 
 def evaluate_lenet5(learning_rate=0.1, n_epochs=30,
                     dataset='dataset.pkl.gz',
-                    nkerns=[20, 50], batch_size=100,
+                    nkerns=[20, 50], batch_size=400,
                     filter_size=[15, 10], poolsize=(2, 2),
                     logistic_layer_inputs=500):
     """ Demonstrates lenet on MNIST dataset
@@ -288,9 +288,8 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=30,
                 print 'training @ iter = ', iter
             cost_ij = train_model(minibatch_index)
 
-#            if (iter + 1) % validation_frequency == 0:
+            if (iter + 1) % validation_frequency == 0:
 
-            if True:
                 # compute zero-one loss on validation set
                 validation_losses = [validate_model(i) for i
                                      in xrange(n_valid_batches)]
