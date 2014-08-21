@@ -21,8 +21,7 @@ References:
    http://yann.lecun.com/exdb/publis/pdf/lecun-98.pdf
 
 """
-import cPickle
-import gzip
+
 import os
 import sys
 import time
@@ -31,6 +30,8 @@ import numpy
 
 import theano
 import theano.tensor as T
+
+
 from theano.tensor.signal import downsample
 from theano.tensor.nnet import conv
 
@@ -38,7 +39,6 @@ import make_dataset as md
 
 from logistic_sgd import LogisticRegression, load_data
 from mlp import HiddenLayer
-
 
 class LeNetConvPoolLayer(object):
     """Pool Layer of a convolutional network """
@@ -105,9 +105,9 @@ class LeNetConvPoolLayer(object):
         self.params = [self.W, self.b]
 
 
-def evaluate_lenet5(learning_rate=0.1, n_epochs=200,
+def evaluate_lenet5(learning_rate=0.1, n_epochs=300,
                     dataset='dataset.pkl.gz',
-                    nkerns=[20, 50], batch_size=400,
+                    nkerns=[32, 64], batch_size=512,
                     filter_size=[15, 10], poolsize=(2, 2),
                     logistic_layer_inputs=500):
     """ Demonstrates lenet on MNIST dataset

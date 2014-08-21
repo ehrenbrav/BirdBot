@@ -2,10 +2,9 @@
 """
 This module divides a wav file into euqally sized
 spectrograms. In order to increase the amount of training
-data available, it first starts from the beginning of the file,
-discarding the remainder that doesn't divide equally into the
-spectrogram frame size, then starts with an offset equal to the
-remainder, to ensure that the entire wav file is covered.
+data available, spectrograms are made with a specified
+stride distance (in seconds) from the start of the 
+previous spectrogram.
 """
 
 import wav_file_importer as wfi
@@ -34,6 +33,9 @@ DRAW_SPECTROGRAM = False
 # How long do we want our spectrograms?
 SPECTROGRAM_DURATION = 4
 
+# Offset of the start of each spectrogram, in seconds.
+SPECTROGRAM_STRIDE = 1
+
 # Frequency limits.
 MAX_FREQUENCY = 13000
 MIN_FREQUENCY = 100
@@ -57,7 +59,6 @@ def add_audio_to_dataset(
     # Load the wav file.
     sample_rate, full_audio_data = wfi.validate_and_read_file(source_path)
     frame_size = sample_rate * SPECTROGRAM_DURATION
-    remainder = len(full_audio_data) % frame_size
 
     # Check to see we actually have enough audio data.
     if len(full_audio_data) < frame_size:
@@ -68,16 +69,18 @@ def add_audio_to_dataset(
     # Get the classification of this recording.
     classification = get_classification(filename, classification_map)
 
-    # Chop the wav file into equally sized pieces, starting from
-    # the front, then do the same starting from the back.
-    front_samples = [full_audio_data[i:i+frame_size] \
-            for i in range(0, len(full_audio_data) - remainder, frame_size)]
-
-    end_samples = [full_audio_data[i:i+frame_size] \
-            for i in range(remainder, len(full_audio_data), frame_size)]
+    # Chop the wav file into equally sized pieces,
+    # separated by the spectrogram stride distance.
+    last_index = len(full_audio_data) - frame_size
+    samples = []
+    frame_num = 0
+    while frame_num < last_index:
+        new_sample = full_audio_data[frame_num:(frame_num + frame_size)]
+        samples.append(new_sample)
+        frame_num = frame_num + (SPECTROGRAM_STRIDE * sample_rate)
 
     # Make the spectrograms.
-    for counter, sample in enumerate(front_samples + end_samples):
+    for counter, sample in enumerate(samples):
 
         # Calculate the spectrogram data.
         data = calculate_spectrogram(sample, sample_rate)
@@ -85,10 +88,10 @@ def add_audio_to_dataset(
         # Draw the actual spectrograms?
         if DRAW_SPECTROGRAM:
             draw_spectrogram(filename, destination_path, data, counter)
-            
+
         # Add the data to our dataset.
         dataset.append((data.flatten(), classification))
-          
+
         # Free memory. This is essential to prevent leaks!
         pyplot.close('all')
 
