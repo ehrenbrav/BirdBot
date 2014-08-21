@@ -244,12 +244,18 @@ if __name__ == '__main__':
     # Process all the underling audio files.
     if os.path.isdir(source_path):
 
+        # Get file count.
+        file_count = len(os.listdir(source_path))
+
         # Create dataset container: a list of tuples of (data, classification).
         dataset = []
+        counter = 1
         for file_in_dir in os.listdir(source_path):
             file_in_dir_path = os.path.join(source_path, file_in_dir)
             add_audio_to_dataset(
                 file_in_dir_path, destination_path, dataset, classification_map)
+            print "File " + str(counter) + " of " + str(file_count)
+            counter = counter + 1
 
         # Divide the dataset into training, validation, and testing data.
         divided_dataset = divide_dataset(dataset, classification_map)
