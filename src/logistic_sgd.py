@@ -134,7 +134,6 @@ class LogisticRegression(object):
         else:
             raise NotImplementedError()
 
-
 def load_data(dataset):
     ''' Loads the dataset
 
@@ -215,19 +214,11 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=50,
     """
     datasets = load_data(dataset)
 
-    train_set_x, train_set_y = datasets[0]
-    valid_set_x, valid_set_y = datasets[1]
-    test_set_x, test_set_y = datasets[2]
+    train_set_x_list, train_set_y_list = datasets[0]
+    valid_set_x_list, valid_set_y_list = datasets[1]
+    test_set_x_list, test_set_y_list = datasets[2]
     classification_map = datasets[3]
 
-    # compute number of minibatches for training, validation and testing
-    n_train_batches = train_set_x.get_value(borrow=True).shape[0] / batch_size
-    n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] / batch_size
-    n_test_batches = test_set_x.get_value(borrow=True).shape[0] / batch_size
-
-    ######################
-    # BUILD ACTUAL MODEL #
-    ######################
     print '... building the model'
 
     # allocate symbolic variables for the data
@@ -282,9 +273,6 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=50,
                 x: train_set_x[index * batch_size:(index + 1) * batch_size],
                 y: train_set_y[index * batch_size:(index + 1) * batch_size]})
 
-    ###############
-    # TRAIN MODEL #
-    ###############
     print '... training the model'
     # early-stopping parameters
     patience = 5000  # look as this many examples regardless
@@ -298,7 +286,6 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=50,
                                   # on the validation set; in this case we
                                   # check every epoch
 
-    best_params = None
     best_validation_loss = numpy.inf
     test_score = 0.
     start_time = time.clock()
@@ -307,6 +294,12 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=50,
     epoch = 0
     while (epoch < n_epochs) and (not done_looping):
         epoch = epoch + 1
+
+        # compute number of minibatches for training, validation and testing
+        n_train_batches = train_set_x.get_value(borrow=True).shape[0] / batch_size
+        n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] / batch_size
+        n_test_batches = test_set_x.get_value(borrow=True).shape[0] / batch_size
+
         for minibatch_index in xrange(n_train_batches):
 
             minibatch_avg_cost = train_model(minibatch_index)
