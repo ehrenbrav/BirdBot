@@ -72,3 +72,13 @@ Front/back audio segmentation
 50% Validation
 50% Test
 20s
+
+256x256 spectrograms
+5 species
+Front/back audio segmentation
+4s segments
+400 epochs
+50 batch size
+46% Validation
+46% Test
+161s

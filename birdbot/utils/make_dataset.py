@@ -27,7 +27,7 @@ mpl.use('Agg')
 
 from matplotlib import pyplot
 import numpy as np
-import params as p
+import birdbot.params as p
 
 # Write the actual spectrogram?
 DRAW_SPECTROGRAM = False
@@ -241,7 +241,7 @@ if __name__ == '__main__':
 
         # Save the dataset.
         print "Saving data..."
-        output = gzip.open('dataset.pkl.gz', 'wb')
+        output = gzip.open(p.DATASET_PATH, 'wb')
         cPickle.dump(divided_dataset, output, -1)
         output.close()
 
