@@ -214,9 +214,9 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=50,
     """
     datasets = load_data(dataset)
 
-    train_set_x_list, train_set_y_list = datasets[0]
-    valid_set_x_list, valid_set_y_list = datasets[1]
-    test_set_x_list, test_set_y_list = datasets[2]
+    train_set_x, train_set_y = datasets[0]
+    valid_set_x, valid_set_y = datasets[1]
+    test_set_x, test_set_y = datasets[2]
     classification_map = datasets[3]
 
     print '... building the model'
@@ -274,6 +274,12 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=50,
                 y: train_set_y[index * batch_size:(index + 1) * batch_size]})
 
     print '... training the model'
+
+    # compute number of minibatches for training, validation and testing
+    n_train_batches = train_set_x.get_value(borrow=True).shape[0] / batch_size
+    n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] / batch_size
+    n_test_batches = test_set_x.get_value(borrow=True).shape[0] / batch_size
+
     # early-stopping parameters
     patience = 5000  # look as this many examples regardless
     patience_increase = 2  # wait this much longer when a new best is
@@ -295,11 +301,6 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=50,
     while (epoch < n_epochs) and (not done_looping):
         epoch = epoch + 1
 
-        # compute number of minibatches for training, validation and testing
-        n_train_batches = train_set_x.get_value(borrow=True).shape[0] / batch_size
-        n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] / batch_size
-        n_test_batches = test_set_x.get_value(borrow=True).shape[0] / batch_size
-
         for minibatch_index in xrange(n_train_batches):
 
             minibatch_avg_cost = train_model(minibatch_index)
@@ -307,7 +308,7 @@ def sgd_optimization_mnist(learning_rate=0.13, n_epochs=50,
             iter = (epoch - 1) * n_train_batches + minibatch_index
 
             if (iter + 1) % validation_frequency == 0:
-                # compute zero-one loss on validation set
+                 # compute zero-one loss on validation set
                 validation_losses = [validate_model(i)
                                      for i in xrange(n_valid_batches)]
                 this_validation_loss = numpy.mean(validation_losses)
