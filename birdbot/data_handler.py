@@ -25,6 +25,10 @@ class DataHandler(object):
         _train_set, _valid_set, _test_set, self.classification_map = \
           cPickle.load(datafile)
         datafile.close()
+        print "Number of examples: " + str(
+            _train_set[0].shape[0] +
+            _valid_set[0].shape[0] +
+            _test_set[0].shape[0])
 
         # Split the data into chunks that will fit on the GPU.
         self.train_set_list = __split_data__(_train_set)
@@ -67,6 +71,9 @@ def __init_shared__(dataset_list):
     """Create shared variables to be used by the GPU."""
 
     #pylint: disable=E1101
+    # Load the first element of data into the shared memory.
+    # If there's only one element in total, we won't touch
+    # the shared variables again.
     shared_x = theano.shared(np.asarray(
         dataset_list[0][0], dtype=theano.config.floatX), borrow=True)
     shared_y = theano.shared(np.asarray(

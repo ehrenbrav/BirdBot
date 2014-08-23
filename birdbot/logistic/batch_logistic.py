@@ -34,6 +34,7 @@ class Bookkeeping(object):
         self.patience = p.PATIENCE
         self.epoch = 0
         self.iteration = 0
+        self.validation_frequency = 50
         
     def print_results(self):
         """Print a summary of the results."""
@@ -87,16 +88,17 @@ def train_logistic_model():
 
     # Summarize the results
     bk.print_results()
-        
+
 def run_calculation(data, functions, bk):
     """Do the actual work."""
 
     # Loop through the chunks of data.
     for x, y in data.train_set_list:
 
-        # Load this bit of data into our shared variables.
-        data.shared_train_x.set_value(x)
-        data.shared_train_y.set_value(y)
+        # Load this bit of data into our shared variables, if not already there.
+        if len(data.train_set_list) > 1:
+            data.shared_train_x.set_value(x)
+            data.shared_train_y.set_value(y)
 
         # Calculate the number of minibatches to run through.
         n_batches = data.shared_train_x.get_value().shape[0] / p.BATCH_SIZE
@@ -110,8 +112,11 @@ def run_calculation(data, functions, bk):
             # Increment the iteration number.
             bk.iteration += 1
 
+            # Adjust validation frequency.
+            bk.validation_frequency = min(n_batches, bk.patience / 2)
+
             # If the time is right, calculate validation and/or test scores.
-            if (bk.iteration + 1) % p.VALIDATION_FREQUENCY == 0:
+            if (bk.iteration + 1) % bk.validation_frequency == 0:
 
                 # Run the accuracy calculation.
                 compute_accuracy(
@@ -169,10 +174,11 @@ def test_model(data_list, shared_x, shared_y, function):
     # Loop through all the data chunks in our set.
     losses = []
     for x, y in data_list:
-        
+
         # Update the shared variables.
-        shared_x.set_value(x)
-        shared_y.set_value(y)
+        if len(data_list) > 1:
+            shared_x.set_value(x)
+            shared_y.set_value(y)
 
         # Calculate the number of minibatches we need.
         n_batches = shared_x.get_value().shape[0] / p.BATCH_SIZE
@@ -182,7 +188,7 @@ def test_model(data_list, shared_x, shared_y, function):
 
             # Run the calculation.
             losses.append(function(minibatch))
-        
+
     return losses
 
 if __name__ == '__main__':
