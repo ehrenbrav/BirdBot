@@ -10,14 +10,15 @@ model on the dataset.
 import time
 
 # Packages.
+import theano
 import theano.tensor as T
 import numpy as np
 
 # BirdBot.
-import data_handler as dh
-import logistic.classifier as lc
-import logistic.functions as lf
-import params as p
+import birdbot.data_handler as dh
+import birdbot.logistic.classifier as lc
+import birdbot.logistic.functions as lf
+import birdbot.params as p
 
 class Bookkeeping(object):
     """Keep track of global stats."""
@@ -38,25 +39,27 @@ class Bookkeeping(object):
         """Print a summary of the results."""
     
         end_time = time.clock()
-        print """
-        Optimization complete:
-        Best validation score of %f %%,
-        with test performance %f %%
-        """ % self.best_validation_loss * 100., self.test_score * 100.
+        print(('Optimization complete: Best validation score of %f %%,'
+        'with test performance %f %%') %
+        (self.best_validation_loss * 100., self.test_score * 100.))
     
         print 'The code run for %d epochs, with %f epochs/sec' % (
             self.epoch, 1. * self.epoch / (end_time - self.start_time))
 
+        print "Total Time: %.1fs" % (end_time - self.start_time)
+
 def train_logistic_model():
     """Use stochastic gradient descent to optimize a prediction model."""
+
+    # pylint: disable=E0602
 
     # Set up data.
     data = dh.DataHandler()
 
     # Initialize symbolic variables.
-    index = T.scalar('index', dtype='int64')     # Minibatch index.
-    x = T.matrix('x', dtype='float32')           # Image data.
-    y = T.vector('y', dtype='float32')           # Classifications
+    index = T.scalar('index', dtype='int64')      # Minibatch index.
+    x = T.matrix('x', dtype=theano.config.floatX) # Image data.
+    y = T.vector('y', dtype=theano.config.floatX) # Classifications
 
     # Set up the logistic classifier.
     print "Building model..."
@@ -64,7 +67,7 @@ def train_logistic_model():
         input_data=x, n_in=data.num_pixels, n_out=data.num_classifications)
 
     # Set up our train, test, validate functions.
-    functions = lf.Functions(data, index, x, y, classifier)
+    functions = lf.Functions(data, (index, x, y), classifier)
 
     # Set up bookeeping.
     bk = Bookkeeping()
@@ -88,12 +91,8 @@ def train_logistic_model():
 def run_calculation(data, functions, bk):
     """Do the actual work."""
 
-    # Track which chunk of data we're crunching.
-    data_cycles = 0
+    # Loop through the chunks of data.
     for x, y in data.train_set_list:
-
-        # Keep track of the iteration of data chunks.
-        data_cycles += 1    
 
         # Load this bit of data into our shared variables.
         data.shared_train_x.set_value(x)
@@ -108,11 +107,8 @@ def run_calculation(data, functions, bk):
             # Train the model.
             functions.train_model(minibatch_index)
 
-            # Calculate the current iteration number.
-            bk.iteration = (bk.epoch - 1) * \
-              n_batches * \
-              data_cycles + \
-              minibatch_index
+            # Increment the iteration number.
+            bk.iteration += 1
 
             # If the time is right, calculate validation and/or test scores.
             if (bk.iteration + 1) % p.VALIDATION_FREQUENCY == 0:
@@ -159,13 +155,13 @@ def compute_accuracy(functions, data, bk, minibatch_index, n_train_batches):
                 functions.test_model)
             bk.test_score = np.mean(test_losses)
 
-            print('  Epoch %i, minibatch %i/%i, '
+            print(('  Epoch %i, minibatch %i/%i, '
                   'test error of best '
-                  'model %f %%'
-                  % bk.epoch,
+                  'model %f %%')
+                  % (bk.epoch,
                   minibatch_index + 1,
                   n_train_batches,
-                  bk.test_score * 100.)
+                  bk.test_score * 100.))
 
 def test_model(data_list, shared_x, shared_y, function):
     """Run the model on the validation or testing set."""
@@ -179,7 +175,7 @@ def test_model(data_list, shared_x, shared_y, function):
         shared_y.set_value(y)
 
         # Calculate the number of minibatches we need.
-        n_batches = shared_x.get_value(x).shape[0] / p.BATCH_SIZE
+        n_batches = shared_x.get_value().shape[0] / p.BATCH_SIZE
 
         # Loop through the minibatches.
         for minibatch in xrange(n_batches):

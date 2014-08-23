@@ -27,22 +27,10 @@ mpl.use('Agg')
 
 from matplotlib import pyplot
 import numpy as np
+import params as p
 
 # Write the actual spectrogram?
 DRAW_SPECTROGRAM = False
-
-# How long do we want our spectrograms?
-SPECTROGRAM_DURATION = 4
-
-# Frequency limits.
-MAX_FREQUENCY = 13000
-MIN_FREQUENCY = 100
-
-# What percent of the dataset to designate for training?
-PERCENT_TRAINING = .7
-
-# Dimensions of width and height (always a square) of the graph.
-SPECTROGRAM_SIDE_SIZE = 256
 
 #pylint: disable=R0914,W0621 
 def add_audio_to_dataset(
@@ -56,7 +44,7 @@ def add_audio_to_dataset(
 
     # Load the wav file.
     sample_rate, full_audio_data = wfi.validate_and_read_file(source_path)
-    frame_size = sample_rate * SPECTROGRAM_DURATION
+    frame_size = sample_rate * p.SPECTROGRAM_DURATION
     remainder = len(full_audio_data) % frame_size
 
     # Check to see we actually have enough audio data.
@@ -146,7 +134,7 @@ def divide_dataset(dataset, classification_map):
 
     # Calculate size of the 3 sets.
     num_examples = len(dataset)
-    num_training = int(num_examples * PERCENT_TRAINING)
+    num_training = int(num_examples * p.PERCENT_TRAINING)
     num_validate = int((num_examples - num_training) / 2)
     num_testing = num_examples - num_training - num_validate
 
@@ -180,7 +168,7 @@ def calculate_spectrogram(sample, sample_rate):
         sample, NFFT=1024, Fs=sample_rate, noverlap=512)
     
     # Chop off useless frequencies.
-    Pxx = Pxx[(freqs > MIN_FREQUENCY) & (freqs < MAX_FREQUENCY)]
+    Pxx = Pxx[(freqs > p.MIN_FREQUENCY) & (freqs < p.MAX_FREQUENCY)]
     
     # Convert to dB scale and flip.
     data = 10. * np.log10(Pxx)
@@ -188,7 +176,7 @@ def calculate_spectrogram(sample, sample_rate):
 
     # Resize to 256 x 256.
     scaled_data = sp.misc.imresize(
-        data, (SPECTROGRAM_SIDE_SIZE, SPECTROGRAM_SIDE_SIZE))
+        data, (p.SPECTROGRAM_SIDE_SIZE, p.SPECTROGRAM_SIDE_SIZE))
 
     # Cast data to int8.
     return scaled_data
@@ -258,7 +246,7 @@ if __name__ == '__main__':
         output.close()
 
         # Save the classification map.
-        json.dump(classification_map, open("classification_map.txt", 'w'))
+        json.dump(classification_map, open(p.CLASSIFICATION_MAP_PATH, 'w'))
 
         # Print some stats.
         logging.info("Total examples: " + str(len(dataset)))
