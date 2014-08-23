@@ -1,7 +1,9 @@
 """
 Functions for doing the actual training/testing.
 """
-import birdbot.paramp
+import birdbot.params as p
+import numpy as np
+
 # pylint: disable=C0103
 
 def run_calculation(data, functions, bk):
@@ -34,7 +36,7 @@ def run_calculation(data, functions, bk):
             if (bk.iteration + 1) % bk.validation_frequency == 0:
 
                 # Run the accuracy calculation.
-                compute_accuracy(
+                __compute_accuracy__(
                     functions, data, bk, minibatch_index, n_batches)
 
 def __compute_accuracy__(functions, data, bk, minibatch_index, n_train_batches):
@@ -44,7 +46,7 @@ def __compute_accuracy__(functions, data, bk, minibatch_index, n_train_batches):
     """
 
     # Calculate the validation score.
-    validation_losses = test_model(
+    validation_losses = __test_model__(
         data.valid_set_list,
         data.shared_valid_x,
         data.shared_valid_y,
@@ -68,7 +70,7 @@ def __compute_accuracy__(functions, data, bk, minibatch_index, n_train_batches):
             bk.best_validation_loss = this_validation_loss
 
             # Try the test set.
-            test_losses = test_model(
+            test_losses = __test_model__(
                 data.test_set_list,
                 data.shared_test_x,
                 data.shared_test_y,
