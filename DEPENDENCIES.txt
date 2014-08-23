@@ -10,3 +10,4 @@ LINUX
 file
 avconv
 libgpuarray
+ensure PYTHONPATH has this directory
