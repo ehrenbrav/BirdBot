@@ -43,6 +43,9 @@ MIN_FREQUENCY = 100
 PERCENT_TRAINING = .7
 
 # Dimensions of width and height (always a square) of the graph.
-SPECTROGRAM_SIDE_SIZE = 256
+SPECTROGRAM_SIDE_SIZE = 128
+
+# Dimensions of color in spectrogram.
+PIXEL_DIM = 1
 
 

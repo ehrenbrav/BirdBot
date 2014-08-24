@@ -208,7 +208,7 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=300,
     layer2_input_dim /= poolsize[0]
     layer2 = HiddenLayer(
         rng,
-        input=layer2_input,
+        data_input=layer2_input,
         n_in=(nkerns[1] * layer2_input_dim * layer2_input_dim),
         n_out=logistic_layer_inputs,
         activation=T.tanh)
