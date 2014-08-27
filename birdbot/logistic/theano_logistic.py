@@ -37,6 +37,7 @@ import numpy
 import theano
 import theano.tensor as T
 
+import birdbot.params as p
 
 class LogisticRegression(object):
     """Multi-class Logistic Regression Class
@@ -192,7 +193,7 @@ def load_data(dataset):
     return rval
 
 def sgd_optimization_mnist(learning_rate=0.13, n_epochs=20,
-                           dataset='../dataset.pkl.gz',
+                           dataset=p.DATASET_PATH,
                            batch_size=50):
     """
     Demonstrate stochastic gradient descent optimization of a log-linear

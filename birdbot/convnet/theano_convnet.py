@@ -30,15 +30,13 @@ import numpy
 
 import theano
 import theano.tensor as T
-
-
 from theano.tensor.signal import downsample
 from theano.tensor.nnet import conv
 
-import make_dataset as md
-
-from logistic_sgd import LogisticRegression, load_data
-from mlp import HiddenLayer
+import birdbot.params as p
+import birdbot.convnet.theano_mlp as tmlp
+import birdbot.logistic.theano_logistic as tl
+import birdbot.logistic.classifier as lc
 
 class LeNetConvPoolLayer(object):
     """Pool Layer of a convolutional network """
@@ -106,7 +104,7 @@ class LeNetConvPoolLayer(object):
 
 
 def evaluate_lenet5(learning_rate=0.1, n_epochs=300,
-                    dataset='dataset.pkl.gz',
+                    dataset=p.DATASET_PATH,
                     nkerns=[32, 64], batch_size=512,
                     filter_size=[15, 10], poolsize=(2, 2),
                     logistic_layer_inputs=500):
@@ -127,10 +125,10 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=300,
     """
 
     # Number of dimensions per pixel of the input image (1 for grayscale).
-    PIXEL_DIM = 1
+    p.PIXEL_DIM = 1
     rng = numpy.random.RandomState(23455)
 
-    datasets = load_data(dataset)
+    datasets = tl.load_data(dataset)
 
     train_set_x, train_set_y = datasets[0]
     valid_set_x, valid_set_y = datasets[1]
@@ -161,9 +159,9 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=300,
     # convolution layer. 
     layer0_input = x.reshape(
         (batch_size,
-         PIXEL_DIM,
-         md.SPECTROGRAM_SIDE_SIZE,
-         md.SPECTROGRAM_SIDE_SIZE))
+         p.PIXEL_DIM,
+         p.SPECTROGRAM_SIDE_SIZE,
+         p.SPECTROGRAM_SIDE_SIZE))
 
     # Construct the first convolutional pooling layer.
     layer0 = LeNetConvPoolLayer(
@@ -171,18 +169,18 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=300,
         input=layer0_input,
         image_shape=(
             batch_size,
-            PIXEL_DIM,
-            md.SPECTROGRAM_SIDE_SIZE,
-            md.SPECTROGRAM_SIDE_SIZE),
+            p.PIXEL_DIM,
+            p.SPECTROGRAM_SIDE_SIZE,
+            p.SPECTROGRAM_SIDE_SIZE),
         filter_shape=(
             nkerns[0],
-            PIXEL_DIM,
+            p.PIXEL_DIM,
             filter_size[0],
             filter_size[0]),
         poolsize=poolsize)
 
     # Construct the second convolutional pooling layer.
-    layer1_input_dim = md.SPECTROGRAM_SIDE_SIZE - filter_size[0] + 1
+    layer1_input_dim = p.SPECTROGRAM_SIDE_SIZE - filter_size[0] + 1
     layer1_input_dim /= poolsize[0]
     layer1 = LeNetConvPoolLayer(
         rng,
@@ -206,15 +204,15 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=300,
     # construct a fully-connected sigmoidal layer.
     layer2_input_dim = layer1_input_dim - filter_size[1] + 1
     layer2_input_dim /= poolsize[0]
-    layer2 = HiddenLayer(
+    layer2 = tmlp.HiddenLayer(
         rng,
-        data_input=layer2_input,
+        input=layer2_input,
         n_in=(nkerns[1] * layer2_input_dim * layer2_input_dim),
         n_out=logistic_layer_inputs,
         activation=T.tanh)
 
     # classify the values of the fully-connected sigmoidal layer
-    layer3 = LogisticRegression(
+    layer3 = lc.LogisticClassifier(
         input=layer2.output,
         n_in=logistic_layer_inputs,
         n_out=len(classification_map))

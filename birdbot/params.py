@@ -9,13 +9,13 @@ CLASSIFICATION_MAP_PATH = '../classification_map.txt'
 # Set the maximum number of examples to copy to the GPU at one time.
 # Ensure this is way bigger than the minibatch size.
 # This should be as large as possible without crashing the GPU.
-MAX_DATA_SIZE = 5000
+MAX_DATA_SIZE = 8000
 
 # Learning rate.
 LEARNING_RATE = .13
 
 # Number of epochs to go through.
-NUM_EPOCHS = 400
+NUM_EPOCHS = 200
 
 # Size of each minibatch.
 BATCH_SIZE = 50
