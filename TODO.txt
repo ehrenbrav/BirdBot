@@ -3,3 +3,6 @@ Try autoencoders
 Try ReLU activation function
 Implement better path specification of dataset file.
 Implement better logging of parameters and results.
+Check size of spectrograms in bytes
+Implement pylearn2 speed-ups
+Implement saving of params for future use

@@ -32,7 +32,8 @@ import birdbot.params as p
 # Write the actual spectrogram?
 DRAW_SPECTROGRAM = False
 
-#pylint: disable=R0914,W0621 
+#pylint: disable=R0914,W0621
+
 def add_audio_to_dataset(
         source_path, destination_path, dataset, classification_map):
     """Generate the spectrograms and optionally save as png files."""
@@ -45,7 +46,6 @@ def add_audio_to_dataset(
     # Load the wav file.
     sample_rate, full_audio_data = wfi.validate_and_read_file(source_path)
     frame_size = sample_rate * p.SPECTROGRAM_DURATION
-    remainder = len(full_audio_data) % frame_size
 
     # Check to see we actually have enough audio data.
     if len(full_audio_data) < frame_size:
@@ -56,16 +56,18 @@ def add_audio_to_dataset(
     # Get the classification of this recording.
     classification = get_classification(filename, classification_map)
 
-    # Chop the wav file into equally sized pieces, starting from
-    # the front, then do the same starting from the back.
-    front_samples = [full_audio_data[i:i+frame_size] \
-            for i in range(0, len(full_audio_data) - remainder, frame_size)]
-
-    end_samples = [full_audio_data[i:i+frame_size] \
-            for i in range(remainder, len(full_audio_data), frame_size)]
+    # Chop the wav file into equally sized pieces,
+    # separated by the spectrogram stride distance.
+    last_index = len(full_audio_data) - frame_size
+    samples = []
+    frame_num = 0
+    while frame_num < last_index:
+        new_sample = full_audio_data[frame_num:(frame_num + frame_size)]
+        samples.append(new_sample)
+        frame_num = frame_num + (p.SPECTROGRAM_STRIDE * sample_rate)
 
     # Make the spectrograms.
-    for counter, sample in enumerate(front_samples + end_samples):
+    for counter, sample in enumerate(samples):
 
         # Calculate the spectrogram data.
         data = calculate_spectrogram(sample, sample_rate)
@@ -73,10 +75,10 @@ def add_audio_to_dataset(
         # Draw the actual spectrograms?
         if DRAW_SPECTROGRAM:
             draw_spectrogram(filename, destination_path, data, counter)
-            
+
         # Add the data to our dataset.
         dataset.append((data.flatten(), classification))
-          
+
         # Free memory. This is essential to prevent leaks!
         pyplot.close('all')
 
@@ -128,7 +130,7 @@ def divide_dataset(dataset, classification_map):
     # unintentional biases due to how the examples
     # are indexed.
     shuffle(dataset)
-    
+
     # Get shape of the data (width x height)
     spectrogram_size = dataset[0][0].shape[0]
 
@@ -162,14 +164,14 @@ def calculate_spectrogram(sample, sample_rate):
     """
 
     #pylint: disable=C0103,E1101,W0612
-    
+
     # Compute the spectrogram.
     Pxx, freqs, bins, im = pyplot.specgram(
         sample, NFFT=1024, Fs=sample_rate, noverlap=512)
-    
+
     # Chop off useless frequencies.
     Pxx = Pxx[(freqs > p.MIN_FREQUENCY) & (freqs < p.MAX_FREQUENCY)]
-    
+
     # Convert to dB scale and flip.
     data = 10. * np.log10(Pxx)
     data = np.flipud(data)
@@ -185,13 +187,13 @@ def draw_spectrogram(filename, destination_path, data, counter):
     """
     Actually draw the spectrograms in destination_path.
     """
-    
+
     # Get add the number of spectrogram sample this is.
     savename = filename
     savename = savename.replace(".wav", "_" + str(counter) + ".png")
     savename = savename.replace(".mp3", "_" + str(counter) + ".png")
     savepath = destination_path + savename
-    
+
     # If the spectrogram exists, continue.
     if os.path.exists(savepath):
         return
@@ -229,12 +231,18 @@ if __name__ == '__main__':
     # Process all the underling audio files.
     if os.path.isdir(source_path):
 
+        # Get file count.
+        file_count = len(os.listdir(source_path))
+
         # Create dataset container: a list of tuples of (data, classification).
         dataset = []
+        counter = 1
         for file_in_dir in os.listdir(source_path):
             file_in_dir_path = os.path.join(source_path, file_in_dir)
             add_audio_to_dataset(
                 file_in_dir_path, destination_path, dataset, classification_map)
+            print "File " + str(counter) + " of " + str(file_count)
+            counter += 1
 
         # Divide the dataset into training, validation, and testing data.
         divided_dataset = divide_dataset(dataset, classification_map)
