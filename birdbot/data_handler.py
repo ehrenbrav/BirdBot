@@ -8,7 +8,8 @@ the data for access by other modules.
 import cPickle
 import gzip
 import numpy as np
-from params import DATASET_PATH, MAX_DATA_SIZE
+import logging
+from birdbot.params import DATASET_PATH, MAX_DATA_SIZE
 import theano
 
 #pylint: disable=R0903,R0902
@@ -20,7 +21,7 @@ class DataHandler(object):
         """Load data."""
 
         # Import the data from file.
-        print "Loading data..."
+        logging.info("Loading data...")
         datafile = gzip.open(DATASET_PATH, 'rb')
         _train_set, _valid_set, _test_set, self.classification_map = \
           cPickle.load(datafile)

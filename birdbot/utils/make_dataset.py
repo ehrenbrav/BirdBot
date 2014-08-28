@@ -8,9 +8,7 @@ spectrogram frame size, then starts with an offset equal to the
 remainder, to ensure that the entire wav file is covered.
 """
 
-import wav_file_importer as wfi
-import logging
-import datetime
+import birdbot.utils.wav_file_importer as wfi
 import argparse
 import os
 import matplotlib as mpl
@@ -40,8 +38,6 @@ def add_audio_to_dataset(
 
     # Get the name of the wav file.
     filename = os.path.basename(source_path)
-    logging.info("Processing " + filename)
-    print "Processing " + filename
 
     # Load the wav file.
     sample_rate, full_audio_data = wfi.validate_and_read_file(source_path)
@@ -49,7 +45,6 @@ def add_audio_to_dataset(
 
     # Check to see we actually have enough audio data.
     if len(full_audio_data) < frame_size:
-        logging.error("Audio clip is too short")
         print "Audio clip is too short."
         return
 
@@ -199,7 +194,6 @@ def draw_spectrogram(filename, destination_path, data, counter):
         return
 
     # Save the spectrogram as a PNG file.
-    logging.info("Writing " + savepath)
     pyplot.imsave(savepath, data, cmap='Greys')
 
 if __name__ == '__main__':
@@ -219,11 +213,6 @@ if __name__ == '__main__':
 
     if not destination_path.endswith(os.sep):
         destination_path = destination_path + os.sep
-
-    # Set up logging.
-    log_name = datetime.datetime.now().strftime('%y%m%d-%H%M') + ".log"
-    logging.basicConfig(filename="../" + log_name, level=logging.INFO,
-                        format='%(levelname)s %(asctime)s: %(message)s')
 
     # Set up a mapping from classification string -> integer.
     classification_map = {}
@@ -257,8 +246,6 @@ if __name__ == '__main__':
         json.dump(classification_map, open(p.CLASSIFICATION_MAP_PATH, 'w'))
 
         # Print some stats.
-        logging.info("Total examples: " + str(len(dataset)))
-        logging.info("Total classes: " + str(len(classification_map)))
         print "Total examples: " + str(len(dataset))
         print "Total classes: " + str(len(classification_map))
 

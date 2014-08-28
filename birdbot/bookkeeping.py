@@ -2,6 +2,7 @@
 
 import numpy as np
 import time
+import logging
 import birdbot.params as p
 
 class Bookkeeping(object):
@@ -12,6 +13,7 @@ class Bookkeeping(object):
     def __init__(self):
         """Set up metrics."""
 
+        # Model metrics.
         self.best_validation_loss = np.inf
         self.test_score = 0.
         self.start_time = time.clock()
@@ -20,16 +22,35 @@ class Bookkeeping(object):
         self.iteration = 0
         self.validation_frequency = 50
 
+        # Logging.
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
+        short_formatter = logging.Formatter('%(message)s')
+
+        # Print to console.
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(short_formatter)
+        logger.addHandler(console_handler)
+
+        # Print to file.
+        file_handler = logging.FileHandler('../birdbot.log')
+        long_formatter = logging.Formatter('%(asctime)s - %(message)s')
+        file_handler.setFormatter(long_formatter)
+        logger.addHandler(file_handler)
+
     def print_results(self):
         """Print a summary of the results."""
 
         end_time = time.clock()
-        print(('Optimization complete: Best validation score of %f %%,'
-        'with test performance %f %%') %
-        (self.best_validation_loss * 100., self.test_score * 100.))
+        summary1 = 'Done: Best validation score: %f %%, test score:  %f %%' % \
+        (self.best_validation_loss * 100., self.test_score * 100.)
+        logging.debug(summary1)
 
-        print 'The code run for %d epochs, with %f epochs/sec' % (
+        summary2 = 'The code run for %d epochs, with %f epochs/sec' % (
             self.epoch, 1. * self.epoch / (end_time - self.start_time))
+        logging.debug(summary2)
 
-        print "Total Time: %.1fs" % (end_time - self.start_time)
+        summary3 =  "Total Time: %.1fs" % (end_time - self.start_time)
+        logging.debug(summary3)
 

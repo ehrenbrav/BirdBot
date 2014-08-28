@@ -3,6 +3,7 @@ Functions for doing the actual training/testing.
 """
 import birdbot.params as p
 import numpy as np
+import logging
 
 # pylint: disable=C0103
 
@@ -53,9 +54,10 @@ def __compute_accuracy__(functions, data, bk, minibatch_index, n_train_batches):
         functions.validate_model)
     this_validation_loss = np.mean(validation_losses)
 
-    print('Epoch %i, minibatch %i/%i, validation error %f %%' %\
+    message = 'Epoch %i, minibatch %i/%i, validation error %f %%' % \
           (bk.epoch, minibatch_index + 1, n_train_batches,
-           this_validation_loss * 100))
+           this_validation_loss * 100)
+    logging.info(message)
 
     # If we have the best validation score so far...
     if this_validation_loss < bk.best_validation_loss:
@@ -77,13 +79,14 @@ def __compute_accuracy__(functions, data, bk, minibatch_index, n_train_batches):
                 functions.test_model)
             bk.test_score = np.mean(test_losses)
 
-            print(('  Epoch %i, minibatch %i/%i, '
+            message = ('  Epoch %i, minibatch %i/%i, '
                   'test error of best '
                   'model %f %%')
                   % (bk.epoch,
                   minibatch_index + 1,
                   n_train_batches,
-                  bk.test_score * 100.))
+                  bk.test_score * 100.)
+            logging.info(message)
 
 def __test_model__(data_list, shared_x, shared_y, function):
     """Run the model on the validation or testing set."""
