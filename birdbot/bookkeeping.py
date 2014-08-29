@@ -22,23 +22,6 @@ class Bookkeeping(object):
         self.iteration = 0
         self.validation_frequency = 50
 
-        # Logging.
-        logger = logging.getLogger()
-        logger.setLevel(logging.DEBUG)
-        short_formatter = logging.Formatter('%(message)s')
-
-        # Print to console.
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-        console_handler.setFormatter(short_formatter)
-        logger.addHandler(console_handler)
-
-        # Print to file.
-        file_handler = logging.FileHandler('../birdbot.log')
-        long_formatter = logging.Formatter('%(asctime)s - %(message)s')
-        file_handler.setFormatter(long_formatter)
-        logger.addHandler(file_handler)
-
     def print_results(self):
         """Print a summary of the results."""
 
@@ -51,6 +34,6 @@ class Bookkeeping(object):
             self.epoch, 1. * self.epoch / (end_time - self.start_time))
         logging.debug(summary2)
 
-        summary3 =  "Total Time: %.1fs" % (end_time - self.start_time)
+        summary3 = "Total Time: %.1fs" % (end_time - self.start_time)
         logging.debug(summary3)
 

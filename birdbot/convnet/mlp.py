@@ -11,7 +11,7 @@ import theano.tensor as T
 class HiddenLayer(object):
     """MLP layer used in the models."""
 
-    def __init__(self, data_input, n_in, n_out, activation=T.tanh):
+    def __init__(self, data_input, n_in, n_out, activation=T.tanh, init_params=None):
         """
         Initialize all our variables.
         """
@@ -20,21 +20,31 @@ class HiddenLayer(object):
         rng = np.random.RandomState(23455)
 
         # Initialize the weights.
-        limit = np.sqrt(6. / (n_in + n_out))
-        W_values = np.asarray(rng.uniform(
-            low=-limit,
-            high=limit,
-            size=(n_in, n_out)), dtype=theano.config.floatX)
+        W_values = None
+        if init_params == None:
+            limit = np.sqrt(6. / (n_in + n_out))
+            W_values = np.asarray(rng.uniform(
+                low=-limit,
+                high=limit,
+                size=(n_in, n_out)), dtype=theano.config.floatX)
 
-        # Handle non tanh activation functions.
-        if activation == theano.tensor.nnet.sigmoid:
-            W_values *= 4
+            # Handle non tanh activation functions.
+            if activation == theano.tensor.nnet.sigmoid:
+                W_values *= 4
+        else:
+            W_values = init_params[0]
 
         # Make this into a shared variable.
         self.W = theano.shared(value=W_values, name='W', borrow=True)
 
         # Initialize biases and make into a shared variable.
-        b_values = np.zeros((n_out,), dtype=theano.config.floatX)
+        b_values = None
+        if init_params == None:
+            b_values = np.zeros((n_out,), dtype=theano.config.floatX)
+        else:
+            b_values = init_params[1]
+
+        # Set up the shared variable.
         self.b = theano.shared(value=b_values, name='b', borrow=True)
 
         # Configure the outputs, handling the linear output special case.

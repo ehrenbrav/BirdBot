@@ -13,7 +13,8 @@ from theano.tensor.signal import downsample
 class LeNetConvPoolLayer(object):
     """Pool Layer of a convolutional network """
 
-    def __init__(self, data_input, filter_shape, image_shape, poolsize):
+    def __init__(
+            self, data_input, filter_shape, image_shape, poolsize, init_params):
 
         assert image_shape[1] == filter_shape[1]
         self.input = data_input
@@ -22,20 +23,30 @@ class LeNetConvPoolLayer(object):
         rng = np.random.RandomState(23455)
 
         # Initialize weights
-        fan_in = np.prod(filter_shape[1:])
-        fan_out = (filter_shape[0] * np.prod(filter_shape[2:]) /
-                   np.prod(poolsize))
-        W_bound = np.sqrt(6. / (fan_in + fan_out))
+        initial_W = None
+        if init_params == None:
+            fan_in = np.prod(filter_shape[1:])
+            fan_out = (filter_shape[0] * np.prod(filter_shape[2:]) /
+                       np.prod(poolsize))
+            W_bound = np.sqrt(6. / (fan_in + fan_out))
+            initial_W = np.asarray(
+                rng.uniform(low=-W_bound, high=W_bound, size=filter_shape),
+                dtype=theano.config.floatX)
+        else:
+            initial_W = init_params[0]
 
         # Initialize shared model weights.
-        self.W = theano.shared(np.asarray(
-            rng.uniform(low=-W_bound, high=W_bound, size=filter_shape),
-            dtype=theano.config.floatX),
-                               borrow=True)
+        self.W = theano.shared(value=initial_W, name='W', borrow=True)
 
         # Initialize shared model biases.
-        b_values = np.zeros((filter_shape[0],), dtype=theano.config.floatX)
-        self.b = theano.shared(value=b_values, borrow=True)
+        initial_b = None
+        if init_params == None:
+            initial_b = np.zeros((filter_shape[0],), dtype=theano.config.floatX)
+        else:
+            initial_b = init_params[1]
+
+        # Store the biases.
+        self.b = theano.shared(value=initial_b, name='b', borrow=True)
 
         # Convolve data_input feature maps with filters
         conv_out = conv.conv2d(

@@ -9,32 +9,44 @@ import theano.tensor as T
 class LogisticClassifier(object):
     """Class for logistic classifier."""
 
-    def __init__(self, input_data, n_in, n_out):
+    def __init__(self, input_data, n_in, n_out, init_params=None):
 
         # Initialize weights with zeros and in the shape n_in x n_out.
-        self.weights = theano.shared(
-            value=np.zeros((n_in, n_out),
-                           dtype=T.config.floatX),
-                           name='W',
+        initial_W = None
+        if init_params == None:
+            initial_W = np.zeros((n_in, n_out), dtype=theano.config.floatX)
+        else:
+            initial_W = init_params[0]
+
+        # Set up the shared variable.
+        self.W = theano.shared(
+            value=initial_W,
+            name='W',
             borrow=True)
 
         # Initialize biases as a vector of n_out zeros.
-        self.biases = theano.shared(
-            value=np.zeros((n_out,),
-                           dtype=theano.config.floatX),
-                           name='b',
+        initial_b = None
+        if init_params == None:
+            initial_b = np.zeros((n_out), dtype=theano.config.floatX)
+        else:
+            initial_b = init_params[1]
+
+        # Set up the shared variab.e
+        self.b = theano.shared(
+            value=initial_b,
+            name='b',
             borrow=True)
 
         # Probability of class y given data x.
         self.p_y_given_x = T.nnet.softmax(
-            T.dot(input_data, self.weights) + self.biases)
+            T.dot(input_data, self.W) + self.b)
 
         # Get class with highest probability.
         self.y_prediction = T.argmax(
             self.p_y_given_x, axis=1)
 
         # Parameters of the model.
-        self.params = [self.weights, self.biases]
+        self.params = [self.W, self.b]
 
     def negative_log_likelihood(self, y):
         """Returns the NLL given the input x."""

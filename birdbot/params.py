@@ -1,7 +1,7 @@
 """Parameters for the model."""
 
 # Path to the dataset.
-DATASET_PATH = '../datasetHALF_STRIDE_128.pkl.gz'
+DATASET_PATH = '../datasetTINY.pkl.gz'
 
 # Path to the classification_map.
 CLASSIFICATION_MAP_PATH = '../classification_map.txt'
@@ -36,7 +36,7 @@ VALIDATION_FREQUENCY = 100
 SPECTROGRAM_DURATION = 4
 
 # Stride distance beween starts of each spectrogram.
-SPECTROGRAM_STRIDE = .5
+SPECTROGRAM_STRIDE = 1
 
 # Frequency limits.
 MAX_FREQUENCY = 13000
@@ -46,7 +46,7 @@ MIN_FREQUENCY = 100
 PERCENT_TRAINING = .7
 
 # Dimensions of width and height (always a square) of the graph.
-SPECTROGRAM_SIDE_SIZE = 128
+SPECTROGRAM_SIDE_SIZE = 64
 
 # Dimensions of color in spectrogram.
 PIXEL_DIM = 1
