@@ -8,6 +8,8 @@ Train a convolutional network.
 # Built-ins
 import logging
 import inspect
+import signal
+import sys
 
 # Packages.
 import theano
@@ -15,7 +17,7 @@ import theano.tensor as T
 import numpy as np
 
 # BirdBot.
-from birdbot import data_handler, bookkeeping, number_crunching
+from birdbot import data_handler, bookkeeping, number_crunching, fileIO
 import birdbot.params as p
 import birdbot.logistic.classifier as lc
 import birdbot.convnet.functions as cf
@@ -122,6 +124,19 @@ def train_convnet(
     # Set up our train, test, validate functions.
     functions = cf.Functions(data, symbolic_variables, classifier, params)
 
+    def signal_handler(*args):
+        """Handle interrupt from keyboard."""
+        if bk.epoch == 0:
+            logging.info("Quitting...")
+            sys.exit(0)
+        else:
+            logging.info("Saving and quitting...")
+            fileIO.save_model(bk, p, functions)
+            sys.exit(0)
+
+    # Set up a signal handler to gracefully exit.
+    signal.signal(signal.SIGINT, signal_handler)
+
     # Start cranking.
     while bk.epoch < p.NUM_EPOCHS:
 
@@ -147,7 +162,6 @@ def print_hyperparams(obj):
         if not name.startswith('__') and not inspect.ismethod(value):
             params[name] = value
     return params
-
 
 if __name__ == '__main__':
     train_convnet(

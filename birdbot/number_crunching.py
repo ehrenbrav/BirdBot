@@ -79,13 +79,11 @@ def __compute_accuracy__(functions, data, bk, minibatch_index, n_train_batches):
                 functions.test_model)
             bk.test_score = np.mean(test_losses)
 
-            message = ('  Epoch %i, minibatch %i/%i, '
-                  'test error of best '
-                  'model %f %%')
-                  % (bk.epoch,
-                  minibatch_index + 1,
-                  n_train_batches,
-                  bk.test_score * 100.)
+            message = '  Epoch %i, minibatch %i/%i, best test error: %f %%' % \
+                  (bk.epoch,
+                   minibatch_index + 1,
+                   n_train_batches,
+                   bk.test_score * 100.)
             logging.info(message)
 
 def __test_model__(data_list, shared_x, shared_y, function):
