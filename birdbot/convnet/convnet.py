@@ -160,11 +160,11 @@ def train_convnet(
     # Set up a signal handler to gracefully exit.
     signal.signal(signal.SIGINT, signal_handler)
 
+    # Log.
+    logging.info("Commencing training...")
+
     # Start cranking.
     while bk.epoch < p.NUM_EPOCHS:
-
-        # Log.
-        logging.info("Commencing training...")
 
         # Loop through all of our training data.
         bk.epoch += 1
