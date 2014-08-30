@@ -1,6 +1,4 @@
 Try decaying learning rates
 Try autoencoders
-Try ReLU activation function
 Implement better path specification of dataset file.
-
 

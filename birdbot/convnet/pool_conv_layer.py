@@ -60,7 +60,8 @@ class LeNetConvPoolLayer(object):
             input=conv_out, ds=poolsize, ignore_border=True)
 
         # Add the bias term.
-        self.output = T.tanh(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+        relu = lambda x: x * (x > 0)
+        self.output = relu(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
 
         # Store parameters of this layer
         self.params = [self.W, self.b]

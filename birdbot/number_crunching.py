@@ -68,23 +68,27 @@ def __compute_accuracy__(functions, data, bk, minibatch_index, n_train_batches):
 
             bk.patience = max(
                 bk.patience, bk.iteration * p.PATIENCE_INCREASE)
+            
+        # Record new high score.
+        bk.best_validation_loss = this_validation_loss
 
-            bk.best_validation_loss = this_validation_loss
+        # Save our params.
+        bk.SAVE_FLAG = True
 
-            # Try the test set.
-            test_losses = __test_model__(
-                data.test_set_list,
-                data.shared_test_x,
-                data.shared_test_y,
-                functions.test_model)
-            bk.test_score = np.mean(test_losses)
+        # Try the test set.
+        test_losses = __test_model__(
+            data.test_set_list,
+            data.shared_test_x,
+            data.shared_test_y,
+            functions.test_model)
+        bk.test_score = np.mean(test_losses)
 
-            message = '  Epoch %i, minibatch %i/%i, best test error: %f %%' % \
-                  (bk.epoch,
-                   minibatch_index + 1,
-                   n_train_batches,
-                   bk.test_score * 100.)
-            logging.info(message)
+        message = '  Epoch %i, minibatch %i/%i, best test error: %f %%' % \
+          (bk.epoch,
+           minibatch_index + 1,
+           n_train_batches,
+           bk.test_score * 100.)
+        logging.info(message)
 
 def __test_model__(data_list, shared_x, shared_y, function):
     """Run the model on the validation or testing set."""

@@ -11,7 +11,7 @@ import theano.tensor as T
 class HiddenLayer(object):
     """MLP layer used in the models."""
 
-    def __init__(self, data_input, n_in, n_out, activation=T.tanh, init_params=None):
+    def __init__(self, data_input, n_in, n_out, activation, init_params=None):
         """
         Initialize all our variables.
         """

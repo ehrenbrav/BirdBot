@@ -8,8 +8,6 @@ Train a convolutional network.
 # Built-ins
 import logging
 import inspect
-import signal
-import sys
 import argparse
 
 # Packages.
@@ -125,7 +123,7 @@ def train_convnet(
         data_input=layer1.output.flatten(2),
         n_in=(n_kerns[1] * layer2_input_dim**2),
         n_out=logistic_inputs,
-        activation=T.tanh,
+        activation=lambda x: x * (x > 0), # ReLU
         init_params=init_params[2])
 
     # Create the logistic layer3.
@@ -140,25 +138,6 @@ def train_convnet(
 
     # Set up our train, test, validate functions.
     functions = cf.Functions(data, symbolic_variables, layer3, params)
-
-    def signal_handler(*args):
-        """Handle interrupt from keyboard."""
-
-        if bk.epoch == 0:
-            logging.info("Quitting...")
-            sys.exit(0)
-        else:
-            logging.info("Saving and quitting...")
-            init_params = \
-            [[layer0.params[0].get_value(), layer0.params[1].get_value()],
-             [layer1.params[0].get_value(), layer1.params[1].get_value()],
-             [layer2.params[0].get_value(), layer2.params[1].get_value()],
-             [layer3.params[0].get_value(), layer3.params[1].get_value()]]
-            fileIO.save_model(bk, init_params)
-            sys.exit(0)
-
-    # Set up a signal handler to gracefully exit.
-    signal.signal(signal.SIGINT, signal_handler)
 
     # Log.
     logging.info("Commencing training...")
@@ -176,13 +155,17 @@ def train_convnet(
         if bk.patience <= bk.iteration:
             break
 
-    # Save and summarize the results
-    init_params = \
-    [[layer0.params[0].get_value(), layer0.params[1].get_value()],
-     [layer1.params[0].get_value(), layer1.params[1].get_value()],
-     [layer2.params[0].get_value(), layer2.params[1].get_value()],
-     [layer3.params[0].get_value(), layer3.params[1].get_value()]]
-    fileIO.save_model(bk, init_params)
+        # If the save flag is true, save since it's a new high score.
+        if bk.SAVE_FLAG:
+            init_params = \
+              [[layer0.params[0].get_value(), layer0.params[1].get_value()],
+               [layer1.params[0].get_value(), layer1.params[1].get_value()],
+               [layer2.params[0].get_value(), layer2.params[1].get_value()],
+               [layer3.params[0].get_value(), layer3.params[1].get_value()]]
+            fileIO.save_model(bk, init_params)
+            bk.SAVE_FLAG = False
+            
+    # Print the final tally.
     bk.print_results()
 
 def print_hyperparams():
