@@ -58,7 +58,7 @@ def train_convnet(
     # Log initial params.
     logging.debug(
         "train_convnet params: " + str(call_values))
-    logging.debug(print_hyperparams(p))
+    logging.debug(print_hyperparams())
 
     # Set up and load data.
     data = data_handler.DataHandler()
@@ -143,7 +143,7 @@ def train_convnet(
 
     def signal_handler(*args):
         """Handle interrupt from keyboard."""
-        
+
         if bk.epoch == 0:
             logging.info("Quitting...")
             sys.exit(0)
@@ -176,15 +176,21 @@ def train_convnet(
         if bk.patience <= bk.iteration:
             break
 
-    # Summarize the results
+    # Save and summarize the results
+    init_params = \
+    [[layer0.params[0].get_value(), layer0.params[1].get_value()],
+     [layer1.params[0].get_value(), layer1.params[1].get_value()],
+     [layer2.params[0].get_value(), layer2.params[1].get_value()],
+     [layer3.params[0].get_value(), layer3.params[1].get_value()]]
+    fileIO.save_model(bk, init_params)
     bk.print_results()
 
-def print_hyperparams(obj):
+def print_hyperparams():
     """Returns a string of parameters in an object."""
 
     params = {}
-    for name in dir(obj):
-        value = getattr(obj, name)
+    for name in dir(p):
+        value = getattr(p, name)
         if not name.startswith('__') and not inspect.ismethod(value):
             params[name] = value
     return params

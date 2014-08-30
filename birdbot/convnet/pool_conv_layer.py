@@ -5,11 +5,8 @@ Class for a convolutional pooling layer.
 import numpy as np
 import theano
 import theano.tensor as T
-#from theano.tensor.nnet import conv
-#from theano.tensor.signal import downsample
-from theano.sandbox.cuda.basic_ops import gpu_contiguous
-from pylearn2.sandbox.cuda_convnet.filter_acts import FilterActs
-from pylearn2.sandbox.cuda_convnet.pool import MaxPool
+from theano.tensor.nnet import conv
+from theano.tensor.signal import downsample
 
 # pylint: disable=R0903,C0103
 
@@ -52,25 +49,15 @@ class LeNetConvPoolLayer(object):
         self.b = theano.shared(value=initial_b, name='b', borrow=True)
 
         # Convolve data_input feature maps with filters
-#        conv_out = conv.conv2d(
-#            input=data_input,
-#            filters=self.W,
-#            filter_shape=filter_shape,
-#            image_shape=image_shape)
-
-        input_shuffled = data_input.dimshuffle(1, 2, 3, 0)
-        filters_shuffled = self.W.dimshuffle(1, 2, 3, 0)
-        conv_op = FilterActs(stride=1, partial_sum=1)
-        contiguous_input = gpu_contiguous(input_shuffled)
-        contiguous_filters = gpu_contiguous(filters_shuffled)
-        conv_out_shuffled = conv_op(contiguous_input, contiguous_filters)
+        conv_out = conv.conv2d(
+            input=data_input,
+            filters=self.W,
+            filter_shape=filter_shape,
+            image_shape=image_shape)
 
         # Downsample each feature map individually, using maxpooling
-#        pooled_out = downsample.max_pool_2d(
-#            input=conv_out, ds=poolsize, ignore_border=True)
-        pool_op = MaxPool(ds=poolsize[0], stride=poolsize[0])
-        pooled_out_shuffled = pool_op(conv_out_shuffled)
-        pooled_out = pooled_out_shuffled.dimshuffle(3, 0, 1, 2)
+        pooled_out = downsample.max_pool_2d(
+            input=conv_out, ds=poolsize, ignore_border=True)
 
         # Add the bias term.
         self.output = T.tanh(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))

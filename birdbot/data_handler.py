@@ -9,8 +9,8 @@ import cPickle
 import gzip
 import numpy as np
 import logging
-from birdbot.params import DATASET_PATH, MAX_DATA_SIZE
 import theano
+from birdbot.params import DATASET_PATH, MAX_DATA_SIZE
 
 #pylint: disable=R0903,R0902
 
@@ -43,7 +43,7 @@ class DataHandler(object):
             self.valid_set_list)
         self.shared_test_x, self.shared_test_y = __init_shared__(
             self.test_set_list)
-        
+
         # Calculate the size of our images.
         self.num_pixels = self.train_set_list[0][0].shape[1]
 
@@ -53,7 +53,7 @@ class DataHandler(object):
 def __split_data__(dataset):
     """
     The dataset is a tuple of ndarrays: (data, classification)
-    with shape ((n_examples, n_pixels), n_examples)    
+    with shape ((n_examples, n_pixels), n_examples)
     """
 
     # Calculate how many pieces to split the data into.
@@ -65,9 +65,9 @@ def __split_data__(dataset):
     # Return a list of sub-arrays.
     x_data = np.array_split(dataset[0], n_chunks)
     y_data = np.array_split(dataset[1], n_chunks)
-    
+
     return zip(x_data, y_data)
-    
+
 def __init_shared__(dataset_list):
     """Create shared variables to be used by the GPU."""
 
@@ -81,7 +81,3 @@ def __init_shared__(dataset_list):
         dataset_list[0][1], dtype=theano.config.floatX), borrow=True)
     return shared_x, shared_y
 
-
-
-
-    
