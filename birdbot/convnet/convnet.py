@@ -200,6 +200,7 @@ if __name__ == '__main__':
         saved_model_path = args.f
 
     # Get to it.
+    # Note that n_kerns must be a multiple of 16.
     train_convnet(
         n_kerns=[32, 64],
         filter_size=[15, 10],

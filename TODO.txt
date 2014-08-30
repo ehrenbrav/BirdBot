@@ -2,6 +2,5 @@ Try decaying learning rates
 Try autoencoders
 Try ReLU activation function
 Implement better path specification of dataset file.
-Check size of spectrograms in bytes
 Implement pylearn2 speed-ups
-Implement saving of params for future use
+
