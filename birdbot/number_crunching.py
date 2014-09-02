@@ -2,12 +2,13 @@
 Functions for doing the actual training/testing.
 """
 import birdbot.params as p
+import birdbot.fileIO
 import numpy as np
 import logging
 
 # pylint: disable=C0103
 
-def run_calculation(data, functions, bk):
+def run_calculation(data, functions, bk, layers):
     """Do the actual work."""
 
     # Loop through the chunks of data.
@@ -38,9 +39,10 @@ def run_calculation(data, functions, bk):
 
                 # Run the accuracy calculation.
                 __compute_accuracy__(
-                    functions, data, bk, minibatch_index, n_batches)
+                    functions, data, bk, minibatch_index, n_batches, layers)
 
-def __compute_accuracy__(functions, data, bk, minibatch_index, n_train_batches):
+def __compute_accuracy__(
+        functions, data, bk, minibatch_index, n_train_batches, layers):
     """
     Run the model on the validation
     and testing sets (if applicable).
@@ -73,7 +75,11 @@ def __compute_accuracy__(functions, data, bk, minibatch_index, n_train_batches):
         bk.best_validation_loss = this_validation_loss
 
         # Save our params.
-        bk.SAVE_FLAG = True
+        init_params = []
+        for layer in layers:
+            init_params.append(
+                [layer.params[0].get_value(), layer.params[1].get_value()])
+        birdbot.fileIO.save_model(bk, init_params)
 
         # Try the test set.
         test_losses = __test_model__(

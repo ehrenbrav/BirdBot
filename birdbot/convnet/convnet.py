@@ -149,22 +149,13 @@ def train_convnet(
         bk.epoch += 1
 
         # Do the hard work.
-        number_crunching.run_calculation(data, functions, bk)
+        layers = [layer0, layer1, layer2, layer3]
+        number_crunching.run_calculation(data, functions, bk, layers)
 
         # Quit if we're out of patience.
         if bk.patience <= bk.iteration:
             break
 
-        # If the save flag is true, save since it's a new high score.
-        if bk.SAVE_FLAG:
-            init_params = \
-              [[layer0.params[0].get_value(), layer0.params[1].get_value()],
-               [layer1.params[0].get_value(), layer1.params[1].get_value()],
-               [layer2.params[0].get_value(), layer2.params[1].get_value()],
-               [layer3.params[0].get_value(), layer3.params[1].get_value()]]
-            fileIO.save_model(bk, init_params)
-            bk.SAVE_FLAG = False
-            
     # Print the final tally.
     bk.print_results()
 
