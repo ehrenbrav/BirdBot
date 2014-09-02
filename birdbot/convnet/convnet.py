@@ -123,7 +123,7 @@ def train_convnet(
         data_input=layer1.output.flatten(2),
         n_in=(n_kerns[1] * layer2_input_dim**2),
         n_out=logistic_inputs,
-        activation=lambda x: x * (x > 0), # ReLU
+        activation=T.tanh,
         init_params=init_params[2])
 
     # Create the logistic layer3.
