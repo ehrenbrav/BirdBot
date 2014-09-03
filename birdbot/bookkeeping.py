@@ -21,7 +21,7 @@ class Bookkeeping(object):
         self.epoch = 0
         self.iteration = 0
         self.validation_frequency = 50
-        self.SAVE_FLAG = False # DEPRECATED
+        self.total_time = 0
 
     def print_results(self):
         """Print a summary of the results."""

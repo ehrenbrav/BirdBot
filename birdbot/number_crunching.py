@@ -5,6 +5,7 @@ import birdbot.params as p
 import birdbot.fileIO
 import numpy as np
 import logging
+import time
 
 # pylint: disable=C0103
 
@@ -81,6 +82,13 @@ def __compute_accuracy__(
                 [layer.params[0].get_value(), layer.params[1].get_value()])
         birdbot.fileIO.save_model(bk, init_params)
 
+        # Note the time.
+        elapsed_time = time.clock() - bk.start_time + bk.total_time
+        bk.total_time = elapsed_time
+        bk.start_time = time.clock()
+        time_string = "Elapsed Time: %.1fs" % elapsed_time
+        logging.info(time_string)
+        
         # Try the test set.
         test_losses = __test_model__(
             data.test_set_list,

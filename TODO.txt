@@ -1,4 +1,4 @@
-Try decaying learning rates
 Try autoencoders
 Implement better path specification of dataset file.
+
 
