@@ -9,6 +9,7 @@ Train a convolutional network.
 import logging
 import inspect
 import argparse
+import time
 
 # Packages.
 import theano
@@ -52,6 +53,7 @@ def train_convnet(
         bk = bookkeeping.Bookkeeping()
     else:
         bk = saved.bk
+        bk.start_time = time.clock()
 
     # Log initial params.
     logging.debug(
@@ -180,10 +182,10 @@ if __name__ == '__main__':
         saved_model_path = args.f
 
     # Get to it.
-    # Note that n_kerns must be a multiple of 16.
     train_convnet(
         n_kerns=[32, 64],
         filter_size=[15, 10],
         poolsize=(2, 2),
         logistic_inputs=500,
         saved_model=saved_model_path)
+
