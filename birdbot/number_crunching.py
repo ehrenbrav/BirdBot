@@ -70,7 +70,7 @@ def __compute_accuracy__(
 
             bk.patience = max(
                 bk.patience, bk.iteration * p.PATIENCE_INCREASE)
-            
+
         # Record new high score.
         bk.best_validation_loss = this_validation_loss
 
