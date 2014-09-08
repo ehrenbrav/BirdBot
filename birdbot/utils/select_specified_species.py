@@ -14,7 +14,7 @@ import sys
 import os.path
 import shutil
 
-DESTINATION_DIRECTORY = "../../training_data/test_audio/"
+DESTINATION_DIRECTORY = "../../training_data/5_species/"
 SOURCE_DIRECTORY = "../../training_data/audio/"
 
 parser = argparse.ArgumentParser()

@@ -1,16 +1,47 @@
 CONCLUSIONS
-3s clips are fine - no big benefit for 2s or 4s
 128x128 spectrograms seem to work almost as well as 256x256
 
 CONVOLUTIONAL
 4 species
 128x128 spectrograms
 4s segments
+Front/back audio segmentation
 200 epochs
 400 batch size
 13.875% Validation
 20.375% Test
 262m
+
+5 species
+128x128 spectrograms
+4s segments
+.5s stride
+44 epochs
+50 batch size
+20.6% Validation
+20.3% Test
+
+5 species
+(smaller filters)
+128x128 spectrogram
+4s segments
+.5s stride
+41 epochs
+50 batch size
+25.9% Validation
+26.1% Test
+404m
+
+5 species
+(64, 128 kernals)
+128x128 spectrograms
+4s segments
+.5s stride
+16 epochs
+50 batch size
+36.54% Validation
+37.88% Test
+624m
 
 LOGISTIC
 4 species

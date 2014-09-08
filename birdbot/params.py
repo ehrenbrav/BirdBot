@@ -1,7 +1,7 @@
 """Parameters for the model."""
 
 # Path to the dataset.
-DATASET_PATH = '../datasetHALF_STRIDE_128.pkl.gz'
+DATASET_PATH = '../dataset2_STRIDE_128.pkl.gz'
 
 # Path to the classification_map.
 CLASSIFICATION_MAP_PATH = '../classification_map.txt'
@@ -36,7 +36,7 @@ VALIDATION_FREQUENCY = 100
 SPECTROGRAM_DURATION = 4
 
 # Stride distance beween starts of each spectrogram.
-SPECTROGRAM_STRIDE = .5
+SPECTROGRAM_STRIDE = 2
 
 # Frequency limits.
 MAX_FREQUENCY = 13000
