@@ -18,7 +18,7 @@ LEARNING_RATE = .13
 NUM_EPOCHS = 400
 
 # Size of each minibatch.
-BATCH_SIZE = 50
+BATCH_SIZE = 64
 
 # Look at this many examples regardless.
 PATIENCE = 19000

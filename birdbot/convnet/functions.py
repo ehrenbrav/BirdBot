@@ -61,3 +61,13 @@ class Functions(object):
                 y: data.shared_train_y[
                     index * p.BATCH_SIZE:(index + 1) * p.BATCH_SIZE]})
 
+        # Set up function for testing the training model.
+        self.test_training_model = theano.function(
+            inputs=[index],
+            outputs=classifier.errors(T.cast(y, 'int64')),
+            givens={
+                x: data.shared_train_x[
+                    index * p.BATCH_SIZE:(index + 1) * p.BATCH_SIZE],
+                y: data.shared_train_y[
+                    index * p.BATCH_SIZE:(index + 1) * p.BATCH_SIZE]})
+

@@ -26,10 +26,10 @@ class DataHandler(object):
         _train_set, _valid_set, _test_set, self.classification_map = \
           cPickle.load(datafile)
         datafile.close()
-        print "Number of examples: " + str(
+        logging.info("Number of examples: " + str(
             _train_set[0].shape[0] +
             _valid_set[0].shape[0] +
-            _test_set[0].shape[0])
+            _test_set[0].shape[0]))
 
         # Split the data into chunks that will fit on the GPU.
         self.train_set_list = __split_data__(_train_set)

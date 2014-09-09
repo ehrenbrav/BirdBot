@@ -183,7 +183,7 @@ if __name__ == '__main__':
 
     # Get to it.
     train_convnet(
-        n_kerns=[64, 128],
+        n_kerns=[32, 64],
         filter_size=[15, 10],
         poolsize=(2, 2),
         logistic_inputs=500,
