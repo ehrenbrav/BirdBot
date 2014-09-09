@@ -1,7 +1,7 @@
 """Parameters for the model."""
 
 # Path to the dataset.
-DATASET_PATH = '../datasetTINY.pkl.gz'
+DATASET_PATH = '../dataset10_32_4.pkl.gz'
 
 # Path to the classification_map.
 CLASSIFICATION_MAP_PATH = '../classification_map.txt'
@@ -13,6 +13,9 @@ MAX_DATA_SIZE = 12000
 
 # Learning rate.
 LEARNING_RATE = .001
+
+# Weight decay.
+WEIGHT_DECAY = .0005
 
 # Print out the training set errors?
 PRINT_TRAINING_SET_ERROR = True

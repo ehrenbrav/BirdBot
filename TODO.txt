@@ -4,5 +4,5 @@ Profile python code
 Tweak architecture and parameters to get training error down to around 0. Then address overfitting issue with data augmentation.
 Do data augmentation on cpu, linear algebra on GPU
 Implement ability to read data files on the fly.
-
+Implement momentum
 

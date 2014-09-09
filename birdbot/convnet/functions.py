@@ -28,7 +28,12 @@ class Functions(object):
         # grads[i]) pairs.
         updates = []
         for param_i, grad_i in zip(params, grads):
-            updates.append((param_i, param_i - p.LEARNING_RATE * grad_i))
+
+            # Update to the next iteration.
+            update = (-p.LEARNING_RATE * grad_i) + \
+                (-p.WEIGHT_DECAY * p.LEARNING_RATE * param_i)
+
+            updates.append((param_i, param_i + update))
 
         # Set up the test function.
         self.test_model = theano.function(
