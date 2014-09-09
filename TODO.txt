@@ -1,4 +1,5 @@
 Try autoencoders
 Implement better path specification of dataset file.
-
+Do data augmentation on cpu, linear algebra on GPU
+Implement ability to read data files on the fly.
 
