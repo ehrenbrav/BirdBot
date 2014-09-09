@@ -33,10 +33,10 @@ def run_calculation(data, functions, bk, layers):
             bk.iteration += 1
 
             # Adjust validation frequency.
-            bk.validation_frequency = min(n_batches, bk.patience / 2)
+            validation_frequency = min(n_batches, bk.patience / 2)
 
             # If the time is right, calculate validation and/or test scores.
-            if (bk.iteration + 1) % bk.validation_frequency == 0:
+            if (bk.iteration + 1) % (validation_frequency * 2) == 0:
 
                 # Run the accuracy calculation.
                 __compute_accuracy__(

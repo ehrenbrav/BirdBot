@@ -19,18 +19,16 @@ class LeNetConvPoolLayer(object):
         assert image_shape[1] == filter_shape[1]
         self.input = data_input
 
-        # Initialize random number generator.
-        rng = np.random.RandomState(23455)
-
         # Initialize weights
         initial_W = None
         if init_params == None:
-            fan_in = np.prod(filter_shape[1:])
-            fan_out = (filter_shape[0] * np.prod(filter_shape[2:]) /
-                       np.prod(poolsize))
-            W_bound = np.sqrt(6. / (fan_in + fan_out))
+
+            # Use a Gaussian distribution.
             initial_W = np.asarray(
-                rng.uniform(low=-W_bound, high=W_bound, size=filter_shape),
+                np.random.normal(
+                    loc=0.,
+                    scale=.01,
+                    size=filter_shape),
                 dtype=theano.config.floatX)
         else:
             initial_W = init_params[0]
@@ -41,7 +39,7 @@ class LeNetConvPoolLayer(object):
         # Initialize shared model biases.
         initial_b = None
         if init_params == None:
-            initial_b = np.zeros((filter_shape[0],), dtype=theano.config.floatX)
+            initial_b = np.ones((filter_shape[0],), dtype=theano.config.floatX)
         else:
             initial_b = init_params[1]
 
@@ -60,7 +58,9 @@ class LeNetConvPoolLayer(object):
             input=conv_out, ds=poolsize, ignore_border=True)
 
         # Add the bias term.
-        self.output = T.tanh(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+        relu = lambda x: x * (x > 0)
+        self.output = relu(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
 
         # Store parameters of this layer
         self.params = [self.W, self.b]
+

@@ -20,7 +20,6 @@ class Bookkeeping(object):
         self.patience = p.PATIENCE
         self.epoch = 0
         self.iteration = 0
-        self.validation_frequency = 50
         self.total_time = 0
 
     def print_results(self):

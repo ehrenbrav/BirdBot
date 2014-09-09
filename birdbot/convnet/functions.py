@@ -34,6 +34,7 @@ class Functions(object):
         self.test_model = theano.function(
             inputs=[index],
             outputs=classifier.errors(T.cast(y, 'int64')),
+            name='test_model',
             givens={
                 x: data.shared_test_x[
                     index * p.BATCH_SIZE: (index + 1) * p.BATCH_SIZE],
@@ -44,6 +45,7 @@ class Functions(object):
         self.validate_model = theano.function(
             inputs=[index],
             outputs=classifier.errors(T.cast(y, 'int64')),
+            name='validate_model',
             givens={
                 x: data.shared_valid_x[
                     index * p.BATCH_SIZE:(index + 1) * p.BATCH_SIZE],
@@ -54,6 +56,7 @@ class Functions(object):
         self.train_model = theano.function(
             inputs=[index],
             outputs=cost,
+            name='train_model',
             updates=updates,
             givens={
                 x: data.shared_train_x[
@@ -65,6 +68,7 @@ class Functions(object):
         self.test_training_model = theano.function(
             inputs=[index],
             outputs=classifier.errors(T.cast(y, 'int64')),
+            name='test_training_model',
             givens={
                 x: data.shared_train_x[
                     index * p.BATCH_SIZE:(index + 1) * p.BATCH_SIZE],

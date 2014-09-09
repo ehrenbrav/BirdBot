@@ -1,7 +1,7 @@
 """Parameters for the model."""
 
 # Path to the dataset.
-DATASET_PATH = '../dataset2_STRIDE_128.pkl.gz'
+DATASET_PATH = '../datasetTINY.pkl.gz'
 
 # Path to the classification_map.
 CLASSIFICATION_MAP_PATH = '../classification_map.txt'
@@ -12,13 +12,13 @@ CLASSIFICATION_MAP_PATH = '../classification_map.txt'
 MAX_DATA_SIZE = 12000
 
 # Learning rate.
-LEARNING_RATE = .13
+LEARNING_RATE = .001
 
 # Number of epochs to go through.
-NUM_EPOCHS = 400
+NUM_EPOCHS = 200
 
 # Size of each minibatch.
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 
 # Look at this many examples regardless.
 PATIENCE = 19000
@@ -36,7 +36,7 @@ VALIDATION_FREQUENCY = 100
 SPECTROGRAM_DURATION = 4
 
 # Stride distance beween starts of each spectrogram.
-SPECTROGRAM_STRIDE = 2
+SPECTROGRAM_STRIDE = 4
 
 # Frequency limits.
 MAX_FREQUENCY = 13000
@@ -46,7 +46,7 @@ MIN_FREQUENCY = 100
 PERCENT_TRAINING = .7
 
 # Dimensions of width and height (always a square) of the graph.
-SPECTROGRAM_SIDE_SIZE = 128
+SPECTROGRAM_SIDE_SIZE = 32
 
 # Dimensions of color in spectrogram.
 PIXEL_DIM = 1

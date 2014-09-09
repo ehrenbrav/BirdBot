@@ -1,4 +1,4 @@
 Try autoencoders
 Implement better path specification of dataset file.
-
-
+Profile python code
+Tweak architecture and parameters to get training error down to around 0. Then address overfitting issue with data augmentation.

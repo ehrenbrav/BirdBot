@@ -121,11 +121,11 @@ def train_convnet(
     (layer1_input_dim - filter_size[1] + 1) / poolsize[1]
 
     # Create the fully-connected sigmoidal layer.
+    relu = lambda x: x * (x > 0)
     layer2 = HiddenLayer(
         data_input=layer1.output.flatten(2),
         n_in=(n_kerns[1] * layer2_input_dim**2),
         n_out=logistic_inputs,
-        activation=T.tanh,
         init_params=init_params[2])
 
     # Create the logistic layer3.
@@ -183,9 +183,9 @@ if __name__ == '__main__':
 
     # Get to it.
     train_convnet(
-        n_kerns=[32, 64],
-        filter_size=[15, 10],
-        poolsize=(2, 2),
-        logistic_inputs=500,
+        n_kerns=[4, 8],
+        filter_size=[10, 5],
+        poolsize=(1, 1),
+        logistic_inputs=100,
         saved_model=saved_model_path)
 
