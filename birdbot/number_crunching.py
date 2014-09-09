@@ -57,22 +57,23 @@ def __compute_accuracy__(
         functions.validate_model)
     this_validation_loss = np.mean(validation_losses)
 
-    # Calculate the training model score.
-    training_losses = __test_model__(
-        data.train_set_list,
-        data.shared_train_x,
-        data.shared_train_y,
-        functions.test_training_model)
-    this_training_loss = np.mean(training_losses)
-
     message = 'Epoch %i, minibatch %i/%i, validation error %f %%' % \
           (bk.epoch, minibatch_index + 1, n_train_batches,
            this_validation_loss * 100)
     logging.info(message)
 
-    message = 'Training set error: %f %%' % \
-              (this_training_loss * 100)
-    logging.info(message)
+    # Calculate the training model score once in a while.
+    if (bk.epoch % 5 == 0) and p.PRINT_TRAINING_SET_ERROR:
+        training_losses = __test_model__(
+            data.train_set_list,
+            data.shared_train_x,
+            data.shared_train_y,
+            functions.test_training_model)
+        this_training_loss = np.mean(training_losses)
+
+        message = 'Training set error: %f %%' % \
+          (this_training_loss * 100)
+        logging.info(message)
 
     # If we have the best validation score so far...
     if this_validation_loss < bk.best_validation_loss:

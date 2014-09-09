@@ -14,6 +14,9 @@ MAX_DATA_SIZE = 12000
 # Learning rate.
 LEARNING_RATE = .001
 
+# Print out the training set errors?
+PRINT_TRAINING_SET_ERROR = True
+
 # Number of epochs to go through.
 NUM_EPOCHS = 200
 
@@ -28,9 +31,6 @@ PATIENCE_INCREASE = 2
 
 # An improvement of this much is considered significant.
 IMPROVEMENT_THRESHOLD = 0.995
-
-# Go through this many minibatches before validating.
-VALIDATION_FREQUENCY = 100
 
 # How long do we want our spectrograms?
 SPECTROGRAM_DURATION = 4
