@@ -1,7 +1,7 @@
 """Parameters for the model."""
 
 # Path to the dataset.
-DATASET_PATH = '../dataset10_32_4.pkl.gz'
+DATASET_PATH = '../datasetFULL_32_4.pkl.gz'
 
 # Path to the classification_map.
 CLASSIFICATION_MAP_PATH = '../classification_map.txt'
@@ -12,7 +12,7 @@ CLASSIFICATION_MAP_PATH = '../classification_map.txt'
 MAX_DATA_SIZE = 12000
 
 # Learning rate.
-LEARNING_RATE = .001
+LEARNING_RATE = .01
 
 # Weight decay.
 WEIGHT_DECAY = .0005

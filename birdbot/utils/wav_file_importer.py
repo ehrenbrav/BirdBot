@@ -10,8 +10,8 @@ def validate_and_read_file(file_path=None):
 
     # Check if file exists.
     if not os.path.isfile(file_path):
-        print "Error: no file found at " + file_path
-        exit(1)
+        logging.error("Error: no file found at " + file_path)
+        return None, None
 
     # Handle various audio formats.
     file_command = subprocess.Popen(
@@ -26,7 +26,7 @@ def validate_and_read_file(file_path=None):
         logging.error("Error: " \
             + file_path \
             + " does not appear to be a .wav file")
-        exit(1)
+        return None, None
 
     # Print some info about the file.
     logging.info("File Name: " + file_path)

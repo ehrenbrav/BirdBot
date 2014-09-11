@@ -186,6 +186,6 @@ if __name__ == '__main__':
         n_kerns=[4, 8],
         filter_size=[10, 5],
         poolsize=(1, 1),
-        logistic_inputs=100,
+        logistic_inputs=500,
         saved_model=saved_model_path)
 

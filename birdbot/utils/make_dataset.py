@@ -41,6 +41,12 @@ def add_audio_to_dataset(
 
     # Load the wav file.
     sample_rate, full_audio_data = wfi.validate_and_read_file(source_path)
+
+    # Handle errors.
+    if sample_rate == None or full_audio_data == None:
+        return
+
+    # Calculate frame size.
     frame_size = sample_rate * p.SPECTROGRAM_DURATION
 
     # Check to see we actually have enough audio data.
