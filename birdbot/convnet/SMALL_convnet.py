@@ -25,7 +25,7 @@ import birdbot.convnet.pool_conv_layer as pcl
 from birdbot.convnet.mlp import HiddenLayer
 
 def train_convnet(
-        n_kerns, filter_size, poolsize, dense_layer_units, saved_model=None):
+        n_kerns, filter_size, poolsize, logistic_inputs, saved_model=None):
     """Use stochastic gradient descent to optimize the convnet model."""
 
     # Set up logging.
@@ -33,7 +33,7 @@ def train_convnet(
     call_values = {"n_kerns": n_kerns,
                    "filter_size": filter_size,
                    "poolsize": poolsize,
-                   "dense_layer_units": dense_layer_units}
+                   "logistic_inputs": logistic_inputs}
     logging.debug("--------------------------")
     if saved_model == None:
         logging.debug("Starting new run of convnet.")
@@ -42,7 +42,7 @@ def train_convnet(
 
     # Load saved data, if necessary.
     # init_params is a list of W and b for each layer.
-    init_params = [None, None, None, None, None]
+    init_params = [None, None, None, None]
     saved = None
     if saved_model != None:
         saved = fileIO.FileLoader(saved_model)
@@ -130,32 +130,21 @@ def train_convnet(
     layer2 = HiddenLayer(
         data_input=layer1.output.flatten(2),
         n_in=(n_kerns[1] * layer2_input_width * layer2_input_height),
-        n_out=dense_layer_units,
+        n_out=logistic_inputs,
         init_params=init_params[2])
 
-    # Create a second dense layer.
-    layer3 = HiddenLayer(
-        data_input=layer2.output,
-        n_in=dense_layer_units,
-        n_out=dense_layer_units,
+    # Create the logistic layer3.
+    layer3 = lc.LogisticClassifier(
+        input_data=layer2.output,
+        n_in=logistic_inputs,
+        n_out=len(data.classification_map),
         init_params=init_params[3])
 
-    # Create the logistic layer4.
-    layer4 = lc.LogisticClassifier(
-        input_data=layer3.output,
-        n_in=dense_layer_units,
-        n_out=len(data.classification_map),
-        init_params=init_params[4])
-
     # Group all our parameters to optimize into a list.
-    params = layer0.params + \
-             layer1.params + \
-             layer2.params + \
-             layer3.params + \
-             layer4.params
+    params = layer0.params + layer1.params + layer2.params + layer3.params
 
     # Set up our train, test, validate functions.
-    functions = cf.Functions(data, symbolic_variables, layer4, params)
+    functions = cf.Functions(data, symbolic_variables, layer3, params)
 
     # Log.
     logging.info("Commencing training...")
@@ -167,7 +156,7 @@ def train_convnet(
         bk.epoch += 1
 
         # Do the hard work.
-        layers = [layer0, layer1, layer2, layer3, layer4]
+        layers = [layer0, layer1, layer2, layer3]
         number_crunching.run_calculation(data, functions, bk, layers)
 
         # Quit if we're out of patience.
@@ -201,8 +190,8 @@ if __name__ == '__main__':
     # Use tall initial filters for spectrograms.
     train_convnet(
         n_kerns=[4, 8],
-        filter_size=[[8, 4], [4, 4]],
+        filter_size=[[16, 5], [3, 3]],
         poolsize=(1, 1),
-        dense_layer_units=500,
+        logistic_inputs=500,
         saved_model=saved_model_path)
 
