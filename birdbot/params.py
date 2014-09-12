@@ -1,7 +1,7 @@
 """Parameters for the model."""
 
 # Path to the dataset.
-DATASET_PATH = '../datasetFULL_32_4.pkl.gz'
+DATASET_PATH = '../dataset39_32_2.pkl.gz'
 
 # Path to the classification_map.
 CLASSIFICATION_MAP_PATH = '../classification_map.txt'
@@ -12,7 +12,7 @@ CLASSIFICATION_MAP_PATH = '../classification_map.txt'
 MAX_DATA_SIZE = 12000
 
 # Learning rate.
-LEARNING_RATE = .01
+LEARNING_RATE = .0001
 
 # Weight decay.
 WEIGHT_DECAY = .0005
@@ -49,7 +49,7 @@ MIN_FREQUENCY = 100
 PERCENT_TRAINING = .7
 
 # Dimensions of width and height (always a square) of the graph.
-SPECTROGRAM_SIDE_SIZE = 32
+SPECTROGRAM_SIDE_SIZE = 64
 
 # Dimensions of color in spectrogram.
 PIXEL_DIM = 1

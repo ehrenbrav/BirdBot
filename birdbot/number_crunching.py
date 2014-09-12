@@ -101,7 +101,7 @@ def __compute_accuracy__(
         bk.start_time = time.clock()
         time_string = "Elapsed Time: %.1fs" % elapsed_time
         logging.info(time_string)
-        
+
         # Try the test set.
         test_losses = __test_model__(
             data.test_set_list,

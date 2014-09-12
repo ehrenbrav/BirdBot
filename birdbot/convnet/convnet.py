@@ -87,8 +87,8 @@ def train_convnet(
     layer0_filter_shape = (
         n_kerns[0],
         p.PIXEL_DIM,
-        filter_size[0],
-        filter_size[0])
+        filter_size[0][0],
+        filter_size[0][1])
     layer0 = pcl.LeNetConvPoolLayer(
         data_input=layer0_input,
         image_shape=layer0_image_shape,
@@ -97,8 +97,11 @@ def train_convnet(
         init_params=init_params[0])
 
     # Wire the first layer to the second.
-    layer1_input_dim = \
-    (spectrogram_side - filter_size[0] + 1) / poolsize[0]
+    layer1_input_width = \
+    (spectrogram_side - filter_size[0][0] + 1) / poolsize[0]
+
+    layer1_input_height = \
+    (spectrogram_side - filter_size[0][1] + 1) / poolsize[0]
 
     # Create the second convolutional layer.
     layer1 = pcl.LeNetConvPoolLayer(
@@ -106,25 +109,27 @@ def train_convnet(
         image_shape=(
             p.BATCH_SIZE,
             n_kerns[0],
-            layer1_input_dim,
-            layer1_input_dim),
+            layer1_input_width,
+            layer1_input_height),
         filter_shape=(
             n_kerns[1],
             n_kerns[0],
-            filter_size[1],
-            filter_size[1]),
+            filter_size[1][0],
+            filter_size[1][1]),
         poolsize=poolsize,
         init_params=init_params[1])
 
     # Wire layer1 to the fully-connected sigmoidal layer.
-    layer2_input_dim = \
-    (layer1_input_dim - filter_size[1] + 1) / poolsize[1]
+    layer2_input_width = \
+    (layer1_input_width - filter_size[1][0] + 1) / poolsize[1]
+
+    layer2_input_height = \
+    (layer1_input_height - filter_size[1][1] + 1) / poolsize[1]
 
     # Create the fully-connected sigmoidal layer.
-    relu = lambda x: x * (x > 0)
     layer2 = HiddenLayer(
         data_input=layer1.output.flatten(2),
-        n_in=(n_kerns[1] * layer2_input_dim**2),
+        n_in=(n_kerns[1] * layer2_input_width * layer2_input_height),
         n_out=logistic_inputs,
         init_params=init_params[2])
 
@@ -182,9 +187,10 @@ if __name__ == '__main__':
         saved_model_path = args.f
 
     # Get to it.
+    # Use tall initial filters for spectrograms.
     train_convnet(
         n_kerns=[4, 8],
-        filter_size=[10, 5],
+        filter_size=[[16, 5], [3, 3]],
         poolsize=(1, 1),
         logistic_inputs=500,
         saved_model=saved_model_path)
