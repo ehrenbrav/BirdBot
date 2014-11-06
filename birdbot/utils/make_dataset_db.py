@@ -48,11 +48,6 @@ def add_audio_to_dataset(source_path, connection, cursor):
     # Get the classification and the Xeno-Canto id of this recording.
     classification, recording_id = get_classification(filename)
 
-    # If the file has already been processed and is in the DB, return.
-    if data_already_exists_in_db(recording_id, cursor):
-        print "File has already been processed."
-        return
-
     # Chop the wav file into equally sized pieces,
     # separated by the spectrogram stride distance.
     last_index = len(full_audio_data) - frame_size
@@ -110,9 +105,15 @@ def get_classification(filename):
         if connection:
             connection.close()
 
-def data_already_exists_in_db(recording_id, cursor):
+def data_already_exists_in_db(path, cursor):
     """Check if the file has already been processed and
     is in the DB."""
+
+    # Get the id from the filename.
+    filename = os.path.basename(path)
+    recording_id = filename.replace(".mp3", "")
+    recording_id = recording_id.replace(".wav", "")
+
     cursor.execute(
         "SELECT * FROM spectrograms WHERE recording_id=%s;",
         (recording_id,))
@@ -184,10 +185,19 @@ if __name__ == '__main__':
             # Create dataset: a list of tuples of (data, classification).
             counter = 1
             for file_in_dir in os.listdir(source_path):
-                file_in_dir_path = os.path.join(source_path, file_in_dir)
-                add_audio_to_dataset(file_in_dir_path, connection, cursor)
+
+                # Keep track of the statistics.
                 print "File " + str(counter) + " of " + str(file_count)
                 counter += 1
+
+                # If the file has already been processed and is in the DB, skip.
+                file_in_dir_path = os.path.join(source_path, file_in_dir)
+                if data_already_exists_in_db(file_in_dir_path, cursor):
+                    print "File has already been processed."
+                    continue
+
+                # Otherwise, add to the dataset.
+                add_audio_to_dataset(file_in_dir_path, connection, cursor)
 
         except psycopg2.DatabaseError, exception:
             print exception
