@@ -1,7 +1,7 @@
 """Parameters for the model."""
 
 # Path to the dataset.
-DATASET_PATH = '../datasetHALF_32_4.pkl.gz'
+DATASET_PATH = '../dataset50_32_1.pkl.gz'
 
 # Path to the classification_map.
 CLASSIFICATION_MAP_PATH = '../classification_map.txt'
@@ -9,16 +9,16 @@ CLASSIFICATION_MAP_PATH = '../classification_map.txt'
 # Set the maximum number of examples to copy to the GPU at one time.
 # Ensure this is way bigger than the minibatch size.
 # This should be as large as possible without crashing the GPU.
-MAX_DATA_SIZE = 12000
+MAX_DATA_SIZE = 300000
 
 # Learning rate.
-LEARNING_RATE = .001
+LEARNING_RATE = .1
 
 # Weight decay.
 WEIGHT_DECAY = .0005
 
 # Print out the training set errors?
-PRINT_TRAINING_SET_ERROR = True
+PRINT_TRAINING_SET_ERROR = False
 
 # Number of epochs to go through.
 NUM_EPOCHS = 200
@@ -39,7 +39,7 @@ IMPROVEMENT_THRESHOLD = 0.995
 SPECTROGRAM_DURATION = 4
 
 # Stride distance beween starts of each spectrogram.
-SPECTROGRAM_STRIDE = 4
+SPECTROGRAM_STRIDE = 1
 
 # Frequency limits.
 MAX_FREQUENCY = 13000
@@ -49,7 +49,7 @@ MIN_FREQUENCY = 100
 PERCENT_TRAINING = .7
 
 # Dimensions of width and height (always a square) of the graph.
-SPECTROGRAM_SIDE_SIZE = 64
+SPECTROGRAM_SIDE_SIZE = 32
 
 # Dimensions of color in spectrogram.
 PIXEL_DIM = 1
