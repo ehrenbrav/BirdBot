@@ -3,6 +3,9 @@
 # Path to the dataset.
 DATASET_PATH = '../dataset50_32_1.pkl.gz'
 
+# Name of the database holding our spectrograms.
+DATABASE = 'test_db'
+
 # Path to the classification_map.
 CLASSIFICATION_MAP_PATH = '../classification_map.txt'
 
