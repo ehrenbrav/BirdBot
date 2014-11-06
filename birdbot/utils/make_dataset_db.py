@@ -45,8 +45,13 @@ def add_audio_to_dataset(source_path, connection, cursor):
         print "Audio clip is too short."
         return
 
-    # Get the classification of this recording.
-    classification, id_number = get_classification(filename)
+    # Get the classification and the Xeno-Canto id of this recording.
+    classification, recording_id = get_classification(filename)
+
+    # If the file has already been processed and is in the DB, return.
+    if data_already_exists_in_db(recording_id, cursor):
+        print "File has already been processed."
+        return
 
     # Chop the wav file into equally sized pieces,
     # separated by the spectrogram stride distance.
@@ -69,7 +74,9 @@ def add_audio_to_dataset(source_path, connection, cursor):
 
         # Add the data to our dataset.
         cursor.execute(
-            "INSERT INTO spectrograms (data, classification, recording_id) VALUES (%s, %s, %s)", (data_list, classification, id_number))
+            """INSERT INTO spectrograms (data, classification, recording_id)
+            VALUES (%s, %s, %s);""",
+            (data_list, classification, recording_id))
         connection.commit()
 
         # Free memory. This is essential to prevent leaks!
@@ -81,18 +88,19 @@ def get_classification(filename):
     """
 
     connection = None
-    id_number = filename.replace(".mp3", "")
-    id_number = id_number.replace(".wav", "")
+    recording_id = filename.replace(".mp3", "")
+    recording_id = recording_id.replace(".wav", "")
 
     try:
         connection = psycopg2.connect(
             database='xeno-canto-data', user='ehrenbrav')
         cursor = connection.cursor()
-        cursor.execute("SELECT en FROM recordings WHERE id=%s;", (id_number,))
+        cursor.execute(
+            "SELECT en FROM recordings WHERE id=%s;", (recording_id,))
         classification = cursor.fetchall()[0][0]
         cursor.close()
 
-        return classification, id_number
+        return classification, recording_id
 
     except psycopg2.DatabaseError, exception:
         print exception
@@ -102,49 +110,16 @@ def get_classification(filename):
         if connection:
             connection.close()
 
-def divide_dataset(dataset, classification_map):
-    """
-    This divides the dataset into
-    training, testing, and validation
-    data. The data is returned as a tuple:
-    (testing_data, validation_data, testing_data).
-    Each of these is itself a tuple: (examples, classifications).
-    Examples is a ndarray of shape (num_examples, (width x height)).
-    Classifications is a ndarray of shape (num_examples).
-    """
-    #pylint: disable=E1101
+def data_already_exists_in_db(recording_id, cursor):
+    """Check if the file has already been processed and
+    is in the DB."""
+    cursor.execute(
+        "SELECT * FROM spectrograms WHERE recording_id=%s;",
+        (recording_id,))
 
-    # Shuffle the dataset to ensure we don't have any
-    # unintentional biases due to how the examples
-    # are indexed.
-    shuffle(dataset)
-
-    # Get shape of the data (width x height)
-    spectrogram_size = dataset[0][0].shape[0]
-
-    # Calculate size of the 3 sets.
-    num_examples = len(dataset)
-    num_training = int(num_examples * p.PERCENT_TRAINING)
-    num_validate = int((num_examples - num_training) / 2)
-    num_testing = num_examples - num_training - num_validate
-
-    # Allocate the ndarrays.
-    examples = np.zeros((num_examples, spectrogram_size), dtype=np.int8)
-    classifications = np.zeros(num_examples, dtype=np.int8)
-
-    # Populate the arrays.
-    for index, example in enumerate(dataset):
-        examples[index] = example[0]
-        classifications[index] = example[1]
-
-    # Split the arrays.
-    training_data = (examples[:num_training], classifications[:num_training])
-    testing_data = (examples[num_training:(num_training + num_testing)],
-                    classifications[num_training:(num_training + num_testing)])
-    validation_data = (examples[(num_examples - num_validate):],
-                       classifications[(num_examples - num_validate):])
-
-    return (training_data, validation_data, testing_data, classification_map)
+    if cursor.fetchone() == None:
+        return False
+    return True
 
 def calculate_spectrogram(sample, sample_rate):
     """
@@ -181,12 +156,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
     source_path = args.source_path
 
-    # See if the database already exists. If so, quit. If not, create.
+    # See if the database already exists. If not, create.
     connection = None
     try:
         connection = psycopg2.connect(database=p.DATABASE, user='ehrenbrav')
-        print "Database already exists...quitting."
-        exit(1)
+        print "Database already exists..."
 
     except psycopg2.OperationalError, exception:
         print "Creating database..."
@@ -208,7 +182,6 @@ if __name__ == '__main__':
             cursor = connection.cursor()
 
             # Create dataset: a list of tuples of (data, classification).
-            # TODO check if the file is already in the database.
             counter = 1
             for file_in_dir in os.listdir(source_path):
                 file_in_dir_path = os.path.join(source_path, file_in_dir)
