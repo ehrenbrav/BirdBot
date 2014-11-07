@@ -22,7 +22,9 @@ def create(database_name):
             id serial PRIMARY KEY,
             data integer[],
             classification text,
-            recording_id text);""")
+            recording_id text,
+            dataset_category text,
+            classification_id integer);""")
         connection.commit()
 
     except psycopg2.DatabaseError, exception:

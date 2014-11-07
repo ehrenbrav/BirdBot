@@ -13,7 +13,7 @@ import matplotlib as mpl
 import scipy as sp
 import psycopg2
 import sys
-from random import shuffle
+import random
 
 # Force matplotlib to not use any Xwindows backend.
 mpl.use('Agg')
@@ -24,7 +24,7 @@ import birdbot.params as p
 
 #pylint: disable=R0914,W0621
 
-def add_audio_to_dataset(source_path, connection, cursor):
+def add_audio_to_dataset(source_path, connection, cursor, classification_map):
     """Generate the spectrograms."""
 
     # Get the name of the wav file.
@@ -67,11 +67,35 @@ def add_audio_to_dataset(source_path, connection, cursor):
         # Convert the data to a plain-vanilla python list for the db.
         data_list = list(data.flatten().astype(int))
 
+        # Assign to a category: training, testing, or validation.
+        random_number = random.random()
+        dataset_category = None
+        if random_number <= p.PERCENT_TRAINING:
+            dataset_category = "train"
+        elif random_number < (1. - ((1. - p.PERCENT_TRAINING) / 2)):
+            dataset_category = "test"
+        else:
+            dataset_category = "valid"
+
+        # See if there's a number assigned to this class.
+        if classification not in classification_map:
+            num_keys = len(classification_map.keys())
+            classification_map[classification] = num_keys
+
         # Add the data to our dataset.
         cursor.execute(
-            """INSERT INTO spectrograms (data, classification, recording_id)
-            VALUES (%s, %s, %s);""",
-            (data_list, classification, recording_id))
+            """INSERT INTO spectrograms
+            (data,
+            classification,
+            recording_id,
+            dataset_category,
+            classification_id)
+            VALUES (%s, %s, %s, %s, %s);""",
+            (data_list,
+             classification,
+             recording_id,
+             dataset_category,
+             classification_map[classification]))
         connection.commit()
 
         # Free memory. This is essential to prevent leaks!
@@ -184,6 +208,7 @@ if __name__ == '__main__':
 
             # Create dataset: a list of tuples of (data, classification).
             counter = 1
+            classification_map = {}
             for file_in_dir in os.listdir(source_path):
 
                 # Keep track of the statistics.
@@ -197,7 +222,7 @@ if __name__ == '__main__':
                     continue
 
                 # Otherwise, add to the dataset.
-                add_audio_to_dataset(file_in_dir_path, connection, cursor)
+                add_audio_to_dataset(file_in_dir_path, connection, cursor, classification_map)
 
         except psycopg2.DatabaseError, exception:
             print exception

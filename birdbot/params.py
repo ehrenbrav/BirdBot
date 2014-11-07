@@ -15,7 +15,7 @@ CLASSIFICATION_MAP_PATH = '../classification_map.txt'
 MAX_DATA_SIZE = 300000
 
 # Learning rate.
-LEARNING_RATE = .1
+LEARNING_RATE = .001
 
 # Weight decay.
 WEIGHT_DECAY = .0005

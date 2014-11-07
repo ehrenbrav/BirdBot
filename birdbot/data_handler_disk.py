@@ -1,12 +1,16 @@
 """
-This class loads the dataset from the database.
+This class loads the dataset, which must be
+cPickled, gzipped, and in a
+particular format. It also stores
+the data for access by other modules.
 """
 
+import cPickle
+import gzip
 import numpy as np
 import logging
 import theano
-import psycopg2
-from birdbot.params import DATABASE, MAX_DATA_SIZE
+from birdbot.params import DATASET_PATH, MAX_DATA_SIZE
 
 #pylint: disable=R0903,R0902
 
@@ -16,53 +20,16 @@ class DataHandler(object):
     def __init__(self):
         """Load data."""
 
-        # Import the data from DB.
-        logging.info("Loading data from database...")
-
-        # Set up the DB connection.
-        connection = None
-        try:
-            connection = psycopg2.connect(database=DATABASE, user='ehrenbrav')
-            cursor = connection.cursor()
-
-            # Now, copy the dataset into memory.
-            cursor.execute(
-                """SELECT data, classification_id FROM spectrograms
-                WHERE dataset_category='train';""")
-            _train_set = cursor.fetchall()
-
-            cursor.execute(
-                """SELECT data, classification_id FROM spectrograms
-                WHERE dataset_category='test';""")
-            _test_set = cursor.fetchall()
-
-            cursor.execute(
-                """SELECT data, classification_id FROM spectrograms
-                WHERE dataset_category='valid';""")
-            _valid_set = cursor.fetchall()
-
-            # Generate the classification map of
-            # classification -> classification_id.
-            cursor.execute("""SELECT DISTINCT classification, classification_id
-            FROM spectrograms;""")
-
-            self.classification_map = cursor.fetchall()
-
-        except psycopg2.DatabaseError, exception:
-            if connection:
-                connection.rollback()
-            print exception
-            exit(1)
-
-        finally:
-            if connection:
-                connection.close()
-
-        # Log some statistics.
+        # Import the data from file.
+        logging.info("Loading data...")
+        datafile = gzip.open(DATASET_PATH, 'rb')
+        _train_set, _valid_set, _test_set, self.classification_map = \
+          cPickle.load(datafile)
+        datafile.close()
         logging.info("Number of examples: " + str(
-            len(_train_set) +
-            len(_test_set) +
-            len(_valid_set)))
+            _train_set[0].shape[0] +
+            _valid_set[0].shape[0] +
+            _test_set[0].shape[0]))
 
         # Split the data into chunks that will fit on the GPU.
         self.train_set_list = __split_data__(_train_set)
@@ -77,15 +44,17 @@ class DataHandler(object):
         self.shared_test_x, self.shared_test_y = __init_shared__(
             self.test_set_list)
 
-def __split_data__(dataset_list):
+        # Calculate the size of our images.
+        self.num_pixels = self.train_set_list[0][0].shape[1]
+
+        # Calculate the number of different classifications.
+        self.num_classifications = len(self.classification_map)
+
+def __split_data__(dataset):
     """
     The dataset is a tuple of ndarrays: (data, classification)
     with shape ((n_examples, n_pixels), n_examples)
     """
-
-    # Convert the list to a tupel of ndarrays.
-    x_list, y_list = zip(*dataset_list)
-    dataset = (np.asarray(x_list), np.asarray(y_list))
 
     # Calculate how many pieces to split the data into.
     n_chunks = dataset[0].shape[0] / MAX_DATA_SIZE
