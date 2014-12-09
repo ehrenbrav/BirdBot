@@ -129,7 +129,7 @@ def get_classification(filename):
         if connection:
             connection.close()
 
-def data_already_exists_in_db(path, cursor):
+def data_already_exists_in_db(path, processed_files):
     """Check if the file has already been processed and
     is in the DB."""
 
@@ -138,13 +138,10 @@ def data_already_exists_in_db(path, cursor):
     recording_id = filename.replace(".mp3", "")
     recording_id = recording_id.replace(".wav", "")
 
-    cursor.execute(
-        "SELECT * FROM spectrograms WHERE recording_id=%s;",
-        (recording_id,))
-
-    if cursor.fetchone() == None:
-        return False
-    return True
+    # Check if the current file is already there.
+    if (recording_id,) in processed_files:
+        return True
+    return False
 
 def calculate_spectrogram(sample, sample_rate):
     """
@@ -206,6 +203,10 @@ if __name__ == '__main__':
             connection = psycopg2.connect(database=p.DATABASE, user='ehrenbrav')
             cursor = connection.cursor()
 
+            # Get list of already processed files (if any).
+            cursor.execute("SELECT recording_ID FROM spectrograms;")
+            processed_files = cursor.fetchall()
+
             # Create dataset: a list of tuples of (data, classification).
             counter = 1
             classification_map = {}
@@ -217,12 +218,13 @@ if __name__ == '__main__':
 
                 # If the file has already been processed and is in the DB, skip.
                 file_in_dir_path = os.path.join(source_path, file_in_dir)
-                if data_already_exists_in_db(file_in_dir_path, cursor):
+                if data_already_exists_in_db(file_in_dir_path, processed_files):
                     print "File has already been processed."
                     continue
 
                 # Otherwise, add to the dataset.
-                add_audio_to_dataset(file_in_dir_path, connection, cursor, classification_map)
+                add_audio_to_dataset(
+                    file_in_dir_path, connection, cursor, classification_map)
 
         except psycopg2.DatabaseError, exception:
             print exception

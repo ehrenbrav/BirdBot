@@ -26,20 +26,23 @@ class DataHandler(object):
             cursor = connection.cursor()
 
             # Now, copy the dataset into memory.
-            cursor.execute(
-                """SELECT data, classification_id FROM spectrograms
-                WHERE dataset_category='train';""")
-            _train_set = cursor.fetchall()
-
+            logging.info("Loading testing data...")
             cursor.execute(
                 """SELECT data, classification_id FROM spectrograms
                 WHERE dataset_category='test';""")
             _test_set = cursor.fetchall()
 
+            logging.info("Loading validation data...")
             cursor.execute(
                 """SELECT data, classification_id FROM spectrograms
                 WHERE dataset_category='valid';""")
             _valid_set = cursor.fetchall()
+
+            logging.info("Loading training data...")
+            cursor.execute(
+                """SELECT data, classification_id FROM spectrograms
+                WHERE dataset_category='train';""")
+            _train_set = cursor.fetchall()
 
             # Generate the classification map of
             # classification -> classification_id.
@@ -51,7 +54,7 @@ class DataHandler(object):
         except psycopg2.DatabaseError, exception:
             if connection:
                 connection.rollback()
-            print exception
+            logging.error(exception)
             exit(1)
 
         finally:

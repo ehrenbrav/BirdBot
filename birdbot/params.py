@@ -1,10 +1,10 @@
 """Parameters for the model."""
 
 # Path to the dataset.
-DATASET_PATH = '../dataset4_32_2.pkl.gz'
+#DATASET_PATH = '../dataset4_32_2.pkl.gz'
 
 # Name of the database holding our spectrograms.
-DATABASE = 'dataset4_32_2'
+DATABASE = 'dataset50_32_quarter'
 
 # Path to the classification_map.
 CLASSIFICATION_MAP_PATH = '../classification_map.txt'
@@ -15,7 +15,7 @@ CLASSIFICATION_MAP_PATH = '../classification_map.txt'
 MAX_DATA_SIZE = 300000
 
 # Learning rate.
-LEARNING_RATE = .001
+LEARNING_RATE = .1
 
 # Weight decay.
 WEIGHT_DECAY = .0005
@@ -42,7 +42,7 @@ IMPROVEMENT_THRESHOLD = 0.995
 SPECTROGRAM_DURATION = 4
 
 # Stride distance beween starts of each spectrogram.
-SPECTROGRAM_STRIDE = 2
+SPECTROGRAM_STRIDE = .25
 
 # Frequency limits.
 MAX_FREQUENCY = 13000
